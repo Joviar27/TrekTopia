@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "128043572779",
+    "project_id": "trektopia-35434",
+    "storage_bucket": "trektopia-35434.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128043572779:android:64e5389e4abe57cd4bd46e",
+        "android_client_info": {
+          "package_name": "com.example.trektopia"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc_4skBORgCT7J43UuyLwJWYfVMv6DyiM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
