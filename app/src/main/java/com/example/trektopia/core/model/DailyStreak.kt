@@ -1,9 +1,9 @@
 package com.example.trektopia.core.model
 
-import java.time.LocalDate
+import com.google.firebase.Timestamp
 
 data class DailyStreak(
-    val count: Int,
-    val latestActive: LocalDate?,
-    val weeklyHistory: List<LocalDate>?
+    val count: Int = 0,
+    val latestActive: Timestamp? = null,
+    val weeklyHistory: List<Timestamp>? = null
 )

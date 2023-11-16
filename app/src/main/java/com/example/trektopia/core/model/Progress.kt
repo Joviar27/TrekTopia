@@ -1,4 +1,7 @@
 package com.example.trektopia.core.model
 
-class Progress {
-}
+data class Progress(
+    val percentage: Double = 0.0,
+    val current: Double = 0.0,
+    val claimed: Boolean = false
+)
