@@ -2,4 +2,24 @@
     <string name="app_name">TrekTopia</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Bottom nav bar   -->
+    <string name="nav_title_home">Home</string>
+    <string name="nav_title_history">History</string>
+    <string name="nav_title_rank">Rank</string>
+    <string name="nav_title_profile">Profile</string>
+    <string name="title_activity_record">RecordActivity</string>
+
+    <!-- EditText Error   -->
+    <string name="err_required">Required</string>
+    <string name="err_invalid_email">Invalid email</string>
+    <string name="err_invalid_pass_1">Minimum 8 characters</string>
+    <string name="err_invalid_pass_2">Password should not contain spaces</string>
+
+    <!-- Toast   -->
+    <string name="signin_failed">Failed to sign in, please try again</string>
+    <string name="signup_failed">Failed to create an account, please try again</string>
+    <string name="signin_succcess">You have successfully signed in</string>
+    <string name="signup_succcess">Account created successfully, please sign in</string>
+    <string name="err_api_problem">Failed to update data</string>
 </resources>
