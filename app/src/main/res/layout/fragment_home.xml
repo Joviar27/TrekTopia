@@ -1,14 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".home.HomeFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.home.HomeFragment"
+    android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_user_pic"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        tools:src="@tools:sample/avatars"/>
+
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/tv_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="@tools:sample/full_names"/>
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/tv_user_point"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="100 Point"/>
+
+    <TextView
+        android:id="@+id/tv_user_streak_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="100 streak"/>
+
+    <TextView
+        android:id="@+id/tv_user_streak_longest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="25 Longest Streak"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_user_streak_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layoutMode="clipBounds"
+        tools:itemCount="5"
+        tools:orientation="horizontal"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_streak"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layoutMode="clipBounds"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_task"/>
+
+    <TextView
+        android:id="@+id/tv_task_countdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="5 hours remaining"/>
+</LinearLayout>
