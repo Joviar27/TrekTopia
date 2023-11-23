@@ -1,4 +1,4 @@
-package com.example.trektopia.core.model
+package com.example.trektopia.core.model.enum
 
 enum class ProgressType {
     DISTANCE,

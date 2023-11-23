@@ -1,8 +1,11 @@
 package com.example.trektopia.core.model
 
+import android.os.Parcelable
 import com.google.firebase.Timestamp
-import com.google.type.LatLng
+import com.google.android.gms.maps.model.LatLng
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Activity(
     val id: String,
     val timeStamp: Timestamp,
@@ -11,4 +14,4 @@ data class Activity(
     val distance: Double,
     val speed: Double,
     val route: List<LatLng>
-)
+) : Parcelable

@@ -1,8 +1,8 @@
-package com.example.trektopia.core.model
+package com.example.trektopia.core.model.operation
 
 import com.google.firebase.firestore.DocumentReference
 
-data class TaskRelationRef(
+data class UpdateProgress(
     val taskAndRelationRef: List<Pair<DocumentReference,DocumentReference>>,
     val addedProgress: Double
 )

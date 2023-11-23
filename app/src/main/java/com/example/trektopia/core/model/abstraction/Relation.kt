@@ -1,5 +1,6 @@
-package com.example.trektopia.core.model
+package com.example.trektopia.core.model.abstraction
 
+import com.example.trektopia.core.model.Progress
 import com.google.firebase.Timestamp
 
 abstract class Relation(
