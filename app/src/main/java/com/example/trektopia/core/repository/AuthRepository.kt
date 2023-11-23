@@ -10,27 +10,27 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 class AuthRepository(
-    private val authDataSource: AuthDataSource,
-    private val firestoreDataSource: FirestoreDataSource
+    private val auth: AuthDataSource,
+    private val firestore: FirestoreDataSource
 ) {
-    fun signIn(email: String, password: String): Flow<ResultState<String>> =
-        authDataSource.signIn(email, password)
+    fun signIn(email: String, password: String) =
+        auth.signIn(email, password)
 
-    fun getAuthState(): Flow<AuthState> = authDataSource.getAuthState()
+    fun getAuthState() = auth.getAuthState()
 
-    fun getUid(): Flow<String?> = authDataSource.getUid()
+    fun getUid(): Flow<String> = auth.getUid()
 
-    fun logout() = authDataSource.logout()
+    fun logout() = auth.logout()
 
     fun signUp(
         username: String,
         email: String,
         password: String
     ): Flow<ResultState<String>> = flow{
-        authDataSource.signUp(email,password).map { result ->
+        auth.signUp(email,password).map { result ->
             when(result) {
                 is ResultState.Success -> {
-                    val setupResult = firestoreDataSource.setupUser(result.data, username, email)
+                    val setupResult = firestore.setupUser(result.data, username, email)
                     emitAll(setupResult)
                 }
                 else -> emit(result)
