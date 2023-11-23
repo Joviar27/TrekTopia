@@ -5,6 +5,8 @@ import com.example.trektopia.core.AuthState
 import com.example.trektopia.core.ResultState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -67,13 +69,20 @@ class AuthDataSource(
             else{
                 trySend(AuthState.UnAuthenticated)
             }
+            close()
         }
         auth.addAuthStateListener(authStateListener)
         awaitClose { auth.removeAuthStateListener(authStateListener) }
     }
 
-    fun getUid(): Flow<String?> = flow{
-        emit(auth.currentUser?.uid)
+    fun getUid(): Flow<String> = flow{
+        try{
+            val uid = auth.uid
+                ?: throw FirebaseFirestoreException("UID is null",
+                    FirebaseFirestoreException.Code.NOT_FOUND)
+            emit(uid)
+        } catch (e:Exception){
+            Log.e("AuthDataSource", "getUID: $e")
+        }
     }
-
 }
