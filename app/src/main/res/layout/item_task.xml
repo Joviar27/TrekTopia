@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_task_pic"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:scaleType="centerCrop"
+        tools:src="@tools:sample/backgrounds/scenic"/>
+
+    <TextView
+        android:id="@+id/tv_task_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Nama tugas pertama"/>
+
+    <TextView
+        android:id="@+id/tv_task_reward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Reward 500 point"/>
+
+    <TextView
+        android:id="@+id/tv_task_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="30/50 selesai"/>
+
+    <TextView
+        android:id="@+id/tv_task_percentage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="70 persen progres"/>
+
+    <Button
+        android:id="@+id/btn_task_claim_reward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Klaim hadiah"/>
+
+</LinearLayout>
