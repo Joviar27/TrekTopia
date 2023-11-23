@@ -1,14 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".profile.ProfileFragment">
+    tools:context=".ui.profile.ProfileFragment"
+    android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/iv_user_pic"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        tools:src="@tools:sample/avatars"/>
+
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/tv_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="@tools:sample/full_names"/>
 
-</FrameLayout>
+    <EditText
+        android:id="@+id/edt_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:hint="@tools:sample/full_names"/>
+
+    <Button
+        android:id="@+id/btn_edit_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Edit Username"/>
+
+    <Button
+        android:id="@+id/btn_save_edit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Save Username"/>
+
+    <TextView
+        android:id="@+id/tv_user_point"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="100 Point"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layoutMode="clipBounds"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_task"/>
+
+    <TextView
+        android:id="@+id/tv_task_countdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="5 hours remaining"/>
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Logout"/>
+
+</LinearLayout>
