@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="DisplayLarge" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="fontFamily">@font/lato_reguler</item>
+    </style>
+    <style name="DisplayLarge.Black" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="fontFamily">@font/lato_black</item>
+    </style>
+    <style name="DisplayLarge.Black.Secondary" parent="DisplayLarge.Black">
+        <item name="android:textColor">@color/secondary</item>
+    </style>
+    <style name="HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="fontFamily">@font/lato_reguler</item>
+    </style>
+    <style name="HeadlineLarge.Black" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="fontFamily">@font/lato_black</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    <style name="HeadlineLarge.Black.White" parent="HeadlineLarge.Black">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="fontFamily">@font/lato_reguler</item>
+    </style>
+    <style name="HeadlineMedium.Black" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="fontFamily">@font/lato_black</item>
+    </style>
+    <style name="HeadlineMedium.Black.OnSecondaryContainer" parent="HeadlineMedium.Black">
+        <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
+    </style>
+    <style name="HeadlineMedium.Black.White" parent="HeadlineMedium.Black">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">@font/lato_reguler</item>
+    </style>
+    <style name="HeadlineSmall.Bold" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="fontFamily">@font/lato_bold</item>
+    </style>
+    <style name="HeadlineSmall.Bold.White" parent="HeadlineSmall.Bold">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/lato_reguler</item>
+    </style>
+    <style name="TitleLarge.OnSecondaryContainer" parent="TitleLarge">
+        <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
+    </style>
+    <style name="TitleLarge.Black" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/lato_black</item>
+    </style>
+    <style name="TitleLarge.SemiBold" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/lato_semibold</item>
+    </style>
+    <style name="TitleLarge.SemiBold.Secondary" parent="TitleLarge.SemiBold">
+        <item name="android:textColor">?attr/colorSecondary</item>
+    </style>
+    <style name="TitleLarge.SemiBold.Red" parent="TitleLarge.SemiBold">
+        <item name="android:textColor">@color/red</item>
+    </style>
+    <style name="TitleLarge.SemiBold.OnSecondaryContainer" parent="TitleLarge.SemiBold">
+        <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
+    </style>
+    <style name="TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/lato_reguler</item>
+    </style>
+    <style name="TitleMedium.OnPrimaryContainer" parent="TitleMedium">
+        <item name="android:textColor">?attr/colorOnPrimaryContainer</item>
+    </style>
+    <style name="TitleMedium.White" parent="TitleMedium">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="TitleMedium.SemiBold" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/lato_semibold</item>
+    </style>
+    <style name="TitleMedium.SemiBold.White" parent="TitleMedium.SemiBold">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="TitleMedium.SemiBold.Primary" parent="TitleMedium.SemiBold">
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+    <style name="TitleMedium.SemiBold.OnSecondaryContainer" parent="TitleMedium.SemiBold">
+        <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
+    </style>
+    <style name="TitleMedium.Black" parent="TextAppearance.Material3.TitleMedium">
+        <item name="fontFamily">@font/lato_black</item>
+    </style>
+    <style name="TitleMedium.Black.OnSecondaryContainer" parent="TitleMedium.Black">
+        <item name="android:textColor">?attr/colorOnSecondaryContainer</item>
+    </style>
+    <style name="TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="fontFamily">@font/lato_medium</item>
+    </style>
+    <style name="TitleSmall.White" parent="TitleSmall">
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="fontFamily">@font/lato_reguler</item>
+    </style>
+    <style name="LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/lato_medium</item>
+    </style>
+    <style name="LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="fontFamily">@font/lato_medium</item>
+    </style>
+    <style name="LabelSmall.White" parent="LabelSmall">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextField">
+        <item name="android:background">@drawable/bg_textfield_surface_8</item>
+        <item name="android:textAppearance">@style/BodyLarge</item>
+        <item name="android:padding">18dp</item>
+    </style>
+
+    <style name="ButtonPrimary">
+        <item name="android:textAppearance">@style/TitleMedium.SemiBold</item>
+        <item name="android:padding">16dp</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="ButtonPrimary.Square" parent="ButtonPrimary">
+        <item name="android:textAppearance">@style/TitleMedium.SemiBold</item>
+        <item name="android:padding">16dp</item>
+        <item name="cornerRadius">0dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <style name="ButtonClaim">
+        <item name="android:backgroundTint">?attr/colorSecondary</item>
+        <item name="android:textAppearance">@style/LabelSmall.White</item>
+        <item name="android:paddingVertical">12dp</item>
+        <item name="android:paddingHorizontal">22dp</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="ShapeAppearance8">
+        <item name="cornerSize">8dp</item>
+    </style>
+    <style name="ShapeAppearance16">
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="ShapeAppearanceOverlayBottom16">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeBottomRight">16dp</item>
+        <item name="cornerSizeBottomLeft">16dp</item>
+    </style>
+    <style name="ShapeAppearanceOverlayTop16">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">16dp</item>
+        <item name="cornerSizeTopRight">16dp</item>
+    </style>
+    <style name="ShapeAppearanceOverlayCircle">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50dp</item>
+    </style>
+</resources>
