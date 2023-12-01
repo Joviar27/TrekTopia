@@ -7,4 +7,22 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="red">#FF0000</color>
+    <!-- Trektopia Theme   -->
+
+    <color name="primary">#B9045E</color>
+    <color name="secondary">#8E4281</color>
+    <color name="tertiary">#775A00</color>
+    <color name="actual_tertiary">#FFCD4B</color>
+    <color name="primary_container">#FFD9E1</color>
+    <color name="secondary_container">#FFD7F2</color>
+    <color name="tertiary_container">#FFDF98</color>
+    <color name="on_primary_container">#3F001B</color>
+    <color name="on_secondary_container">#390034</color>
+    <color name="on_tertiary_container">#251A00</color>
+    <color name="surface">#FAF3F4</color>
+
+    <color name="bronze">#CD7F32</color>
+    <color name="gold">#FFD700</color>
+    <color name="silver">#C0C0C0</color>
 </resources>
