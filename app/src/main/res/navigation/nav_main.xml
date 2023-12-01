@@ -84,4 +84,23 @@
             android:id="@+id/action_recapFragment_to_historyFragment"
             app:destination="@id/historyFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/leaderboardFragment"
+        android:name="com.example.trektopia.ui.leaderboard.LeaderboardFragment"
+        android:label="fragment_leaderboard"
+        tools:layout="@layout/fragment_leaderboard" />
+    <fragment
+        android:id="@+id/fullAchievementsFragment"
+        android:name="com.example.trektopia.ui.profile.FullAchievementsFragment"
+        android:label="fragment_full_achievements"
+        tools:layout="@layout/fragment_full_achievements" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.trektopia.ui.profile.ProfileFragment"
+        android:label="ProfileFragment"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_fullAchievementsFragment"
+            app:destination="@id/fullAchievementsFragment" />
+    </fragment>
 </navigation>
