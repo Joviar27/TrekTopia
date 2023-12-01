@@ -6,17 +6,17 @@
         android:title="@string/nav_title_home" />
     <item
         android:id="@+id/historyFragment"
-        android:icon="@drawable/ic_home_24"
+        android:icon="@drawable/ic_history_24"
         android:title="@string/nav_title_history" />
     <item
         android:id="@+id/placeholder"
         android:title=""/>
     <item
         android:id="@+id/rankFragment"
-        android:icon="@drawable/ic_home_24"
+        android:icon="@drawable/ic_star_border_24"
         android:title="@string/nav_title_rank" />
     <item
         android:id="@+id/profileFragment"
-        android:icon="@drawable/ic_home_24"
+        android:icon="@drawable/ic_outline_person_24"
         android:title="@string/nav_title_profile" />
 </menu>
