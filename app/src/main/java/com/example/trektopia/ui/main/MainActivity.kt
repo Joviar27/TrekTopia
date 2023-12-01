@@ -5,7 +5,6 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
@@ -142,8 +141,11 @@ class MainActivity : AppCompatActivity() {
                     if (listFragmentTopBar.contains(destination.id)) View.VISIBLE
                     else View.GONE
                 title = destination.label
-                setNavigationOnClickListener {
-                    controller.navigateUp()
+                if(listFragmentTopBarWithBackNavigation.contains(destination.id)){
+                    navigationIcon =ContextCompat.getDrawable(context,R.drawable.ic_arrow_back_24)
+                    setNavigationOnClickListener {
+                        controller.navigateUp()
+                    }
                 }
             }
         }
@@ -158,10 +160,21 @@ class MainActivity : AppCompatActivity() {
                 R.id.profileFragment
             )
 
-        //TODO: Add other destination with top bar
         val listFragmentTopBar =
             listOf(
-                R.id.historyDetailFragment
+                R.id.historyFragment,
+                R.id.historyDetailFragment,
+                R.id.recordFragment,
+                R.id.recapFragment,
+                R.id.profileFragment,
+                R.id.fullAchievementsFragment
+            )
+
+        val listFragmentTopBarWithBackNavigation =
+            listOf(
+                R.id.historyDetailFragment,
+                R.id.recordFragment,
+                R.id.fullAchievementsFragment
             )
     }
 }

@@ -11,20 +11,19 @@
         android:id="@+id/material_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimaryContainer"
-        tools:background="?attr/colorSecondary"
+        android:background="?attr/colorSecondaryContainer"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_arrow_back_24"/>
+        app:navigationIconTint="?attr/colorOnSecondaryContainer"
+        app:titleTextColor="?attr/colorOnSecondaryContainer"/>
 
     <!--  TODO: Change FAB image  -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_record"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:foreground="@drawable/ic_home_24"
+        android:foreground="@drawable/ic_walk"
         app:fabCustomSize="56dp"
-        app:layout_anchor="@id/bottom_app_bar"
-        app:maxImageSize="32dp" />
+        app:layout_anchor="@id/bottom_app_bar" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
@@ -39,6 +38,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
+        android:backgroundTint="@color/secondary_container"
         app:contentInsetEnd="0dp"
         app:contentInsetStart="0dp"
         app:fabAlignmentMode="center"
@@ -52,6 +52,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:backgroundTint="@android:color/transparent"
+            app:itemTextColor="?attr/colorOnSecondaryContainer"
+            app:itemIconTint="?attr/colorOnSecondaryContainer"
             app:elevation="0dp"
             app:menu="@menu/menu_bottom_nav" />
     </com.google.android.material.bottomappbar.BottomAppBar>
