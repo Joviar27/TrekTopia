@@ -1,64 +1,219 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.record.RecordFragment"
     android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/materialCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/white"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayBottom16">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="32dp"
+            android:paddingVertical="24dp">
+
+            <include
+                android:id="@+id/detail_steps"
+                layout="@layout/layout_activity_live"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <include
+                android:id="@+id/detail_distance"
+                layout="@layout/layout_activity_live"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toStartOf="@+id/detail_speed"
+                app:layout_constraintStart_toEndOf="@+id/detail_steps"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <include
+                android:id="@+id/detail_speed"
+                layout="@layout/layout_activity_live"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:textAppearance="@style/DisplayLarge.Black.Secondary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/detail_distance"
+                tools:text="00 : 00 : 00" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="400dp"/>
+        android:layout_height="490dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
 
-    <TextView
-        android:id="@+id/tv_timer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="1 Jam 30 Menit"/>
-
-    <TextView
-        android:id="@+id/tv_step_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="200 Langkah"/>
-
-    <TextView
-        android:id="@+id/tv_speed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="11Km/Jam"/>
-
-    <TextView
-        android:id="@+id/tv_distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="1,3 KM"/>
-
-    <Button
+    <com.google.android.material.card.MaterialCardView
+        android:visibility="visible"
         android:id="@+id/btn_start_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Start Record"/>
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginBottom="32dp"
+        app:cardBackgroundColor="@color/primary"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayCircle">
+        <View
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/bg_circle"
+            android:backgroundTint="?attr/colorTertiary"
+            android:layout_gravity="center"/>
+    </com.google.android.material.card.MaterialCardView>
 
-    <Button
-        android:id="@+id/btn_resume_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Resume Record"/>
-
-    <Button
-        android:id="@+id/btn_pause_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Pause Record"/>
-
-    <Button
+    <com.google.android.material.card.MaterialCardView
+        android:visibility="gone"
         android:id="@+id/btn_stop_record"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="Stop Record"/>
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginBottom="32dp"
+        app:cardBackgroundColor="@color/primary"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayCircle">
+        <View
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_common_8"
+            android:backgroundTint="?attr/colorTertiary"
+            android:layout_gravity="center"/>
+    </com.google.android.material.card.MaterialCardView>
 
-</LinearLayout>
+    <com.google.android.material.card.MaterialCardView
+        android:visibility="gone"
+        android:id="@+id/btn_pause_record"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/primary"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_stop_record"
+        app:layout_constraintEnd_toStartOf="@+id/btn_stop_record"
+        app:layout_constraintTop_toTopOf="@+id/btn_stop_record"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayCircle">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_pause_24"
+            app:tint="?attr/colorTertiary"/>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:visibility="gone"
+        android:id="@+id/btn_resume_record"
+        android:layout_width="90dp"
+        android:layout_height="90dp"
+        android:layout_marginBottom="32dp"
+        app:cardBackgroundColor="@color/primary"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayCircle">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_resume_60"
+            app:tint="?attr/colorTertiary"/>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:visibility="gone"
+        android:id="@+id/btn_stop_record_small"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/primary"
+        app:cardElevation="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_resume_record"
+        app:layout_constraintEnd_toStartOf="@+id/btn_resume_record"
+        app:layout_constraintTop_toTopOf="@+id/btn_resume_record"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlayCircle">
+        <View
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:background="@drawable/bg_common_8"
+            android:backgroundTint="?attr/colorTertiary"
+            android:layout_gravity="center"/>
+    </com.google.android.material.card.MaterialCardView>
+
+
+<!--    <TextView-->
+<!--        android:id="@+id/tv_step_count"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="200 Langkah"/>-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/tv_speed"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="11Km/Jam"/>-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/tv_distance"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="1,3 KM"/>-->
+
+<!--    <Button-->
+<!--        android:id="@+id/btn_start_record"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="Start Record"/>-->
+
+<!--    <Button-->
+<!--        android:id="@+id/btn_resume_record"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="Resume Record"/>-->
+
+<!--    <Button-->
+<!--        android:id="@+id/btn_pause_record"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="Pause Record"/>-->
+
+<!--    <Button-->
+<!--        android:id="@+id/btn_stop_record"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="Stop Record"/>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
