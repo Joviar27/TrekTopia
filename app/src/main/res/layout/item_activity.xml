@@ -1,46 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_marginTop="24dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="16dp">
 
-    <ImageView
-        android:id="@+id/iv_activity_route"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:scaleType="centerCrop"
-        tools:src="@tools:sample/backgrounds/scenic"/>
-
-    <TextView
-        android:id="@+id/tv_activity_date"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="29 Juli 2023"/>
+        android:padding="16dp"
+        android:background="?attr/colorPrimaryContainer">
 
-    <TextView
-        android:id="@+id/tv_activity_duration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="2 Hours 5 Minutes 4 Second"/>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/iv_activity_route"
+            android:layout_width="141dp"
+            android:layout_height="132dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearance="@style/ShapeAppearance8"
+            tools:src="@tools:sample/backgrounds/scenic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_activity_step"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="5000 langkah"/>
+        <TextView
+            android:id="@+id/tv_activity_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="10dp"
+            android:drawablePadding="6dp"
+            android:textAppearance="@style/TitleMedium.OnPrimaryContainer"
+            app:drawableStartCompat="@drawable/ic_calendar_13"
+            app:drawableTint="?attr/colorOnPrimaryContainer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_activity_route"
+            app:layout_constraintTop_toTopOf="@+id/iv_activity_route"
+            tools:text="29 Juli 2023" />
 
-    <TextView
-        android:id="@+id/tv_activity_distance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="10.6 KM"/>
+        <TextView
+            android:id="@+id/tv_recap_duration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_common_8"
+            android:backgroundTint="?attr/colorTertiary"
+            android:drawablePadding="6dp"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="3dp"
+            android:textAppearance="@style/TitleSmall.White"
+            app:drawableStartCompat="@drawable/ic_outline_timer_15"
+            app:drawableTint="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tv_activity_date"
+            app:layout_constraintTop_toBottomOf="@+id/tv_activity_date"
+            tools:text="2 Hours 5 Minutes" />
 
-    <TextView
-        android:id="@+id/tv_activity_speed"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="11 KM/H"/>
+        <include
+            android:id="@+id/step_info"
+            layout="@layout/layout_activity_info"
+            android:layout_width="55dp"
+            android:layout_height="50dp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_activity_route"
+            app:layout_constraintStart_toStartOf="@+id/tv_recap_duration" />
 
-</LinearLayout>
+        <include
+            android:id="@+id/distance_info"
+            layout="@layout/layout_activity_info"
+            android:layout_width="55dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="11dp"
+            app:layout_constraintBottom_toBottomOf="@+id/step_info"
+            app:layout_constraintStart_toEndOf="@+id/step_info" />
+
+        <include
+            android:id="@+id/speed_info"
+            layout="@layout/layout_activity_info"
+            android:layout_width="55dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="11dp"
+            app:layout_constraintBottom_toBottomOf="@+id/distance_info"
+            app:layout_constraintStart_toEndOf="@+id/distance_info" />
+
+        <!--    <TextView-->
+        <!--        android:id="@+id/tv_activity_step"-->
+        <!--        android:layout_width="wrap_content"-->
+        <!--        android:layout_height="wrap_content"-->
+        <!--        tools:text="5000 langkah"/>-->
+
+        <!--    <TextView-->
+        <!--        android:id="@+id/tv_activity_distance"-->
+        <!--        android:layout_width="wrap_content"-->
+        <!--        android:layout_height="wrap_content"-->
+        <!--        tools:text="10.6 KM"/>-->
+
+        <!--    <TextView-->
+        <!--        android:id="@+id/tv_activity_speed"-->
+        <!--        android:layout_width="wrap_content"-->
+        <!--        android:layout_height="wrap_content"-->
+        <!--        tools:text="11 KM/H"/>-->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
+
