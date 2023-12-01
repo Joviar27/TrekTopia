@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cv_status"
+    android:layout_width="280dp"
+    android:layout_height="210dp"
+    android:elevation="90dp"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="10dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent">
+
+    <ImageView
+        android:id="@+id/iv_icon"
+        android:layout_width="84dp"
+        android:layout_height="84dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="28dp"
+        tools:background="@drawable/ic_loading"
+        tools:backgroundTint="?attr/colorSecondary"/>
+
+    <TextView
+        android:id="@+id/tv_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="28dp"
+        tools:text="@string/dialog_loading_activity"
+        android:textAppearance="@style/TitleMedium.SemiBold"
+        android:textAlignment="center"
+        android:textSize="16sp" />
+
+</androidx.cardview.widget.CardView>
