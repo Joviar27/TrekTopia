@@ -63,4 +63,5 @@
     <string name="dialog_fail_activity">Failed to save activity…\nPlease try again</string>
     <string name="dialog_fail_claim">Failed to claim points…\nPlease try again</string>
     <string name="dialog_fail_update">Failed to update your data…\nPlease try again</string>
+    <string name="logout">Logout</string>
 </resources>
