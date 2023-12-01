@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <ImageView
-        android:id="@+id/iv_streak_indicator"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        tools:src="?attr/colorPrimary"/>
+    android:layout_marginStart="12dp"
+    android:orientation="vertical"
+    android:gravity="center">
 
     <TextView
         android:id="@+id/tv_streak_day"
-        android:layout_width="wrap_content"
+        android:layout_width="45dp"
         android:layout_height="wrap_content"
-        tools:text="Monday"/>
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="4dp"
+        android:gravity="center"
+        android:textAppearance="@style/HeadlineMedium.Black.White"
+        android:background="@drawable/bg_streak_tertiary_8"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="Su" />
 
     <TextView
-        android:id="@+id/tv_steak_date"
+        android:id="@+id/tv_streak_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="28 Januari"/>
+        android:layout_marginTop="4dp"
+        android:textAppearance="@style/LabelSmall.White"
+        tools:text="28/10"/>
 
 </LinearLayout>

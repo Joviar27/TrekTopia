@@ -1,46 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:padding="16dp">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_task_pic"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="75dp"
         android:scaleType="centerCrop"
-        tools:src="@tools:sample/backgrounds/scenic"/>
+        app:shapeAppearance="@style/ShapeAppearance8"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@tools:sample/backgrounds/scenic" />
 
     <TextView
         android:id="@+id/tv_task_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Nama tugas pertama"/>
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/BodyLarge"
+        app:layout_constraintStart_toEndOf="@+id/iv_task_pic"
+        app:layout_constraintTop_toTopOf="@+id/iv_task_pic"
+        tools:text="@tools:sample/lorem" />
+
+    <include
+        android:id="@+id/custom_task_progress"
+        layout="@layout/custom_task_progress"
+        android:layout_width="160dp"
+        android:layout_height="25dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_task_pic"
+        app:layout_constraintStart_toStartOf="@+id/tv_task_name" />
 
     <TextView
         android:id="@+id/tv_task_reward"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Reward 500 point"/>
+        android:layout_marginTop="8dp"
+        android:drawablePadding="4dp"
+        android:gravity="center"
+        android:textAppearance="@style/LabelLarge"
+        app:drawableEndCompat="@drawable/ic_stars_24"
+        app:drawableTint="@color/actual_tertiary"
+        app:layout_constraintBottom_toTopOf="@+id/btn_task_claim_reward"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btn_task_claim_reward"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="30" />
 
-    <TextView
-        android:id="@+id/tv_task_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="30/50 selesai"/>
-
-    <TextView
-        android:id="@+id/tv_task_percentage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="70 persen progres"/>
-
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_task_claim_reward"
+        style="@style/ButtonClaim"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:text="Klaim hadiah"/>
+        android:layout_marginBottom="4dp"
+        android:text="@string/claim"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-</LinearLayout>
+<!--    <TextView-->
+<!--        android:id="@+id/tv_task_progress"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="30/50 selesai"/>-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/tv_task_percentage"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        tools:text="70 persen progres"/>-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

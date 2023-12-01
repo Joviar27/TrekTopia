@@ -1,63 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.home.HomeFragment"
-    android:orientation="vertical">
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/iv_user_pic"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        tools:src="@tools:sample/avatars"/>
-
-    <TextView
-        android:id="@+id/tv_user_name"
-        android:layout_width="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="@tools:sample/full_names"/>
+        android:orientation="vertical"
+        tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/tv_user_point"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="100 Point"/>
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="@drawable/tophome_secondarycontainer_16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tv_user_streak_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="100 streak"/>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_user_pic"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/avatars" />
 
-    <TextView
-        android:id="@+id/tv_user_streak_longest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="25 Longest Streak"/>
+        <TextView
+            android:id="@+id/tv_user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="14dp"
+            android:textAppearance="@style/TitleLarge.OnSecondaryContainer"
+            app:layout_constraintStart_toEndOf="@+id/iv_user_pic"
+            app:layout_constraintTop_toTopOf="@+id/iv_user_pic"
+            tools:text="@tools:sample/full_names" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_user_streak_history"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layoutMode="clipBounds"
-        tools:itemCount="5"
-        tools:orientation="horizontal"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_streak"/>
+        <TextView
+            android:id="@+id/tv_user_point"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:drawableEndCompat="@drawable/ic_stars_24"
+            app:drawableTint="@color/actual_tertiary"
+            android:drawablePadding="8dp"
+            android:textAppearance="@style/TitleMedium.Black.OnSecondaryContainer"
+            app:layout_constraintStart_toStartOf="@+id/tv_user_name"
+            app:layout_constraintTop_toBottomOf="@+id/tv_user_name"
+            tools:text="1500 Point" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_task"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layoutMode="clipBounds"
-        tools:itemCount="3"
-        tools:listitem="@layout/item_task"/>
+        <include
+            android:id="@+id/include"
+            layout="@layout/layout_streak"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_user_pic" />
 
-    <TextView
-        android:id="@+id/tv_task_countdown"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:text="5 hours remaining"/>
-</LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="4dp"
+            android:gravity="center"
+            android:text="@string/daily_missions"
+            android:textAppearance="@style/TitleLarge.SemiBold"
+            app:layout_constraintStart_toStartOf="@+id/rv_task"
+            app:layout_constraintTop_toTopOf="@+id/tv_task_countdown" />
+
+        <TextView
+            android:id="@+id/tv_task_countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:drawablePadding="4dp"
+            android:gravity="center"
+            android:textAppearance="@style/TitleLarge.SemiBold.Red"
+            app:drawableStartCompat="@drawable/ic_outline_timer_24"
+            app:drawableTint="@color/red"
+            app:layout_constraintEnd_toEndOf="@+id/rv_task"
+            app:layout_constraintTop_toBottomOf="@+id/include"
+            tools:text="5 Hours" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_task"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:layoutMode="clipBounds"
+            android:background="@drawable/bg_rvtask_outlined_16"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_task_countdown"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_task" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
+
