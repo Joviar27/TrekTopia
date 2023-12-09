@@ -10,6 +10,7 @@ data class Activity(
     val id: String,
     val timeStamp: Timestamp,
     val duration: Double,
+    val startTime: Timestamp,
     val stepCount: Int,
     val distance: Double,
     val speed: Double,
