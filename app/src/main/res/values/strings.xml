@@ -36,6 +36,10 @@
     <string name="claim">Claim</string>
     <string name="progress">%.1f/%.1f</string>
     <string name="daily_missions">Daily Missions</string>
+    <string name="point">%s Point</string>
+    <!--  Streak  -->
+    <string name="current_streak">Total : %s Days</string>
+    <string name="longest_streak">Your record : %s Days</string>
 
     <!-- History Page  -->
     <string name="steps">Steps</string>
@@ -49,19 +53,37 @@
     <!-- Recap   -->
     <string name="discard">Discard</string>
     <string name="save">Save</string>
+    <string name="start_stop_format">%s - %s</string>
+
+    <!-- Leaderboard   -->
     <string name="leaderboard">Leaderboard</string>
+
+    <!--  Profile  -->
+    <string name="logout">Logout</string>
     <string name="see_more">See more</string>
+    <string name="achievements">Achievements</string>
+    <string name="chooser">Choose Image</string>
+    <string name="gallery_failed">Failed to open gallery</string>
 
     <!-- Dialog   -->
+    <string name="dialog_loading_login">Logging in\nPlease wait…</string>
+    <string name="dialog_loading_register">Registering new account\nPlease wait…</string>
+
     <string name="dialog_loading_activity">Awesome!\nSaving your activity…</string>
     <string name="dialog_loading_claim">Good job!\nClaiming your reward…</string>
     <string name="dialog_loading_update">Okay!Updating your data…</string>
+    <string name="dialog_loading_update_profile">Okay!Updating your profile…</string>
 
     <string name="dialog_success_claim">Point successfully claimed!\nAdded %s points</string>
     <string name="dialog_success_update">Update success!\nYour username is updated</string>
+    <string name="dialog_success_update_profile">Update success!\nYour username is updated</string>
 
     <string name="dialog_fail_activity">Failed to save activity…\nPlease try again</string>
     <string name="dialog_fail_claim">Failed to claim points…\nPlease try again</string>
     <string name="dialog_fail_update">Failed to update your data…\nPlease try again</string>
-    <string name="logout">Logout</string>
+    <string name="dialog_fail_update_profile">Failed to update your profile…\nPlease try again</string>
+
+    <!--  Other  -->
+    <string name="page_failed_load">Failed to load page, try again</string>
+
 </resources>
