@@ -27,6 +27,4 @@ class StorageDataSource(
     fun uploadProfile(userId: String, uri: Uri) =
         storage.child(userId).putFile(uri)
 
-
-
 }

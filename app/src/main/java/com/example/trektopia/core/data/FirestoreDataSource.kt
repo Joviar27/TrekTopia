@@ -61,8 +61,12 @@ class FirestoreDataSource(
         userId: String,
         newUri: Uri,
     ): Flow<ResultState<Unit>> = callbackFlow{
+        trySend(ResultState.Loading)
         USERS_REF.document(userId)
             .update("pictureUri",newUri)
+            .addOnSuccessListener {
+                trySend(ResultState.Success(Unit))
+            }
             .addOnFailureListener{e ->
                 trySend(ResultState.Error(e.message.toString()))
                 Log.e("FirestoreDataSource", "updatePictureUri: $e")
