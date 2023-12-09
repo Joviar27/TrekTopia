@@ -74,12 +74,14 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
                 RecordService.LIVE_COUNT_ACTION -> {
                     val liveCount = intent.getIntExtra(RecordService.EXTRA_LIVE_COUNT, 0)
                     binding?.apply {
-                        tvStepCount.text = liveCount.toString()
+                        liveSteps.tvLiveInfo.text = liveCount.toString()
+                        liveSteps.tvLiveType.text = resources.getString(R.string.live_steps)
                     }
                 }
                 RecordService.FINAL_RESULT_ACTION -> {
                     handleFinalResult(intent)
                     clearMaps()
+
                     //TODO: Stop service to prevent memory leak
                 }
                 RecordService.CHECK_LOCATION_SETTING_ACTION ->{
@@ -150,13 +152,30 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
 
     private fun setupActionView() {
         binding?.apply {
-            btnStartRecord.setOnClickListener { handleServiceAction(RecordService.ACTION_START_RECORDING) }
-            btnPauseRecord.setOnClickListener { handleServiceAction(RecordService.ACTION_PAUSE_RECORDING) }
+            btnStartRecord.setOnClickListener {
+                btnPauseRecord.visibility = View.VISIBLE
+                btnStopRecord.visibility = View.VISIBLE
+                btnStartRecord.visibility = View.GONE
+                handleServiceAction(RecordService.ACTION_START_RECORDING)
+            }
+            btnPauseRecord.setOnClickListener {
+                btnPauseRecord.visibility = View.GONE
+                btnStopRecord.visibility = View.GONE
+                btnResumeRecord.visibility = View.VISIBLE
+                btnStopRecordSmall.visibility = View.VISIBLE
+                handleServiceAction(RecordService.ACTION_PAUSE_RECORDING)
+            }
             btnStopRecord.setOnClickListener {
                 handleServiceAction(RecordService.ACTION_STOP_RECORDING)
                 requireActivity().unregisterReceiver(broadcastReceiver)
             }
-            btnResumeRecord.setOnClickListener { handleServiceAction(RecordService.ACTION_RESUME_RECORDING)}
+            btnResumeRecord.setOnClickListener {
+                btnPauseRecord.visibility = View.VISIBLE
+                btnStopRecord.visibility = View.VISIBLE
+                btnResumeRecord.visibility = View.GONE
+                btnStopRecordSmall.visibility = View.GONE
+                handleServiceAction(RecordService.ACTION_RESUME_RECORDING)
+            }
         }
     }
 
@@ -238,39 +257,11 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
     }
 
     fun handleFinalResult(intent: Intent){
-        val totalCount = intent.getIntExtra(RecordService.EXTRA_TOTAL_COUNT, 0)
-        val elapsed = intent.getLongExtra(RecordService.EXTRA_ELAPSED_TIME, 0)
-        val allLatLng = getParcelableExtra<LatLngWrapper>(intent, RecordService.EXTRA_LATEST_COORDINATE)
-        val averageSpeed = intent.getDoubleExtra(RecordService.EXTRA_AVERAGE_SPEED, 0.0)
-        val totalDistance = intent.getDoubleExtra(RecordService.EXTRA_TOTAL_DISTANCE, 0.0)
+        val finalActivity = getParcelableExtra<Activity>(intent, RecordService.EXTRA_FINAL_ACTIVITY)
 
-        val randomId = generateRandomId(totalCount, elapsed, averageSpeed)
-
-        val newActivity = Activity(
-            id = randomId,
-            timeStamp = Timestamp.now(),
-            duration = elapsed.toDouble(),
-            stepCount = totalCount,
-            distance = totalDistance,
-            speed = averageSpeed,
-            route = allLatLng.latLngList
-        )
-
-        val toRecap = HistoryFragmentDirections.actionHistoryFragmentToHistoryDetailFragment(newActivity)
-        toRecap.activity = newActivity
+        val toRecap = HistoryFragmentDirections.actionHistoryFragmentToHistoryDetailFragment(finalActivity)
+        toRecap.activity = finalActivity
         view?.findNavController()?.safeNavigate(toRecap)
-    }
-
-    private fun generateRandomId(totalCount: Int, elapsed: Long, averageSpeed: Double): String {
-        val dateFormat = SimpleDateFormat("MMdd", Locale.getDefault())
-        val part1 = dateFormat.format(LocalDate.now())
-        val part2 = totalCount.toString().substring(0, 2)
-        val part3 = elapsed.toString().substring(0, 2)
-        val part4 =
-            String.format("%.2f", averageSpeed).replace(".", "").substring(0, 2)
-        val random = Random()
-
-        return "$part1$part2$part3$part4${random.nextInt(100)}"
     }
 
     fun handleTimer(intent: Intent){
@@ -328,9 +319,11 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             val bounds = getParcelableExtra<LatLngBounds>(intent, RecordService.EXTRA_LATEST_BOUND)
             mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 64))
 
-            //TODO: Format the display
-            binding?.tvDistance?.text = totalDistance.toString()
-            binding?.tvSpeed?.text = currentSpeed.toString()
+            binding?.liveDistance?.tvLiveInfo?.text = totalDistance.toString()
+            binding?.liveDistance?.tvLiveType?.text = resources.getString(R.string.km)
+
+            binding?.liveSpeed?.tvLiveInfo?.text = currentSpeed.toString()
+            binding?.liveSpeed?.tvLiveType?.text = resources.getString(R.string.km_h)
         } catch (e: Exception) {
             handleException(e)
         }

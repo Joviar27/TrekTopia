@@ -18,8 +18,10 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.TaskStackBuilder
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.trektopia.R
+import com.example.trektopia.core.model.Activity
 import com.example.trektopia.ui.record.RecordFragment
 import com.example.trektopia.utils.LatLngWrapper
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -31,6 +33,11 @@ import  com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.firebase.Timestamp
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.util.Locale
+import java.util.Random
 
 class RecordService : Service(), SensorEventListener {
 
@@ -53,10 +60,13 @@ class RecordService : Service(), SensorEventListener {
     private var totalDistance: Double = 0.0
     private var previousLocation: Location? = null
 
-    private var startTime: Long = 0
-    private var elapsedTime: Long = 0
+    private var startTimeInMilis: Long = 0L
+    private var elapsedTime: Long = 0L
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var runnable: Runnable
+
+    private lateinit var startTime: Timestamp
+    private lateinit var endTime: Timestamp
 
     private var isRecording = false
 
@@ -82,7 +92,8 @@ class RecordService : Service(), SensorEventListener {
                 ACTION_START_RECORDING -> {
                     startForegroundService()
                     startLocationUpdate()
-                    startTime = System.currentTimeMillis()
+                    startTimeInMilis = System.currentTimeMillis()
+                    startTime = Timestamp.now()
                     startTimer()
                     isRecording = true
                 }
@@ -94,10 +105,10 @@ class RecordService : Service(), SensorEventListener {
                 ACTION_STOP_RECORDING -> {
                     stopLocationUpdates()
                     stopTimer()
+                    endTime = Timestamp.now()
                     isRecording = false
 
-                    val latLngWrapper = LatLngWrapper(allLatLng)
-                    finalRecordResult(stepCount,latLngWrapper, averageSpeed, elapsedTime, totalDistance)
+                    finalRecordResult()
 
                     stopForegroundService()
                 }
@@ -126,7 +137,6 @@ class RecordService : Service(), SensorEventListener {
     private fun startForegroundService() {
         createNotificationChannel()
 
-        //TODO: Add backstack to notification
         val notificationIntent = Intent(this, RecordFragment::class.java)
 
         val pendingFlags: Int = if (Build.VERSION.SDK_INT >= 23) {
@@ -135,15 +145,15 @@ class RecordService : Service(), SensorEventListener {
             PendingIntent.FLAG_UPDATE_CURRENT
         }
 
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent, pendingFlags
-        )
+        val pendingIntent: PendingIntent? = TaskStackBuilder.create(applicationContext).run {
+            addNextIntentWithParentStack(notificationIntent)
+            getPendingIntent(0, pendingFlags)
+        }
 
-        //TODO: Customize notification
         val notification = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-            .setContentTitle("Walk recording")
+            .setContentTitle("Walking activity")
             .setContentText("Recording you walk...")
-            .setSmallIcon(R.drawable.ic_arrow_back_24)
+            .setSmallIcon(R.drawable.ic_walk)
             .setContentIntent(pendingIntent)
             .build()
 
@@ -222,7 +232,7 @@ class RecordService : Service(), SensorEventListener {
     private fun startTimer() {
         runnable = object : Runnable {
             override fun run() {
-                elapsedTime = System.currentTimeMillis() - startTime
+                elapsedTime = System.currentTimeMillis() - startTimeInMilis
                 duration(elapsedTime)
                 handler.postDelayed(this, 1000)
             }
@@ -262,14 +272,21 @@ class RecordService : Service(), SensorEventListener {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
-    private fun finalRecordResult(totalCount: Int, allLatLng: LatLngWrapper, averageSpeed: Double, elapsed: Long, distance: Double) {
-        //TODO: just send activity parceleable lol
+    private fun finalRecordResult() {
+        val randomId = generateRandomId(stepCount, elapsedTime, averageSpeed)
+        val finalActivity = Activity(
+            id = randomId,
+            timeStamp = endTime,
+            duration = elapsedTime.toDouble(),
+            startTime = startTime,
+            stepCount = stepCount,
+            distance = totalDistance,
+            speed = averageSpeed,
+            route = allLatLng
+        )
+
         val intent = Intent(FINAL_RESULT_ACTION)
-        intent.putExtra(EXTRA_TOTAL_COUNT, totalCount)
-        intent.putExtra(EXTRA_ELAPSED_TIME, elapsed)
-        intent.putExtra(EXTRA_LATEST_COORDINATE, allLatLng)
-        intent.putExtra(EXTRA_AVERAGE_SPEED,averageSpeed)
-        intent.putExtra(EXTRA_TOTAL_DISTANCE,distance)
+        intent.putExtra(EXTRA_FINAL_ACTIVITY, finalActivity)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
@@ -293,23 +310,37 @@ class RecordService : Service(), SensorEventListener {
         sensorManager.unregisterListener(this)
     }
 
+    private fun generateRandomId(totalCount: Int, elapsed: Long, averageSpeed: Double): String {
+        val dateFormat = SimpleDateFormat("MMdd", Locale.getDefault())
+        val part1 = dateFormat.format(LocalDate.now())
+        val part2 = totalCount.toString().substring(0, 2)
+        val part3 = elapsed.toString().substring(0, 2)
+        val part4 =
+            String.format("%.2f", averageSpeed).replace(".", "").substring(0, 2)
+        val random = Random()
+
+        return "$part1$part2$part3$part4${random.nextInt(100)}"
+    }
+
     companion object {
+        //Send action to fragment
         const val LIVE_COUNT_ACTION = "live-count-update"
         const val FINAL_RESULT_ACTION = "total-count-update"
         const val CHECK_LOCATION_SETTING_ACTION = "check-location-setting"
         const val COORDINATE_ACTION = "lat-lng-update"
         const val LIVE_TIMER_ACTION = "elapsed-time-update"
 
+        //Send data to fragment
         const val EXTRA_LIVE_COUNT = "liveStepCount"
-        const val EXTRA_TOTAL_COUNT = "totalStepCount"
         const val EXTRA_LOCATION_REQUEST = "locationRequest"
         const val EXTRA_LATEST_COORDINATE = "latLng"
         const val EXTRA_LATEST_BOUND = "latLngBounds"
         const val EXTRA_ELAPSED_TIME = "elapsedTime"
         const val EXTRA_LATEST_SPEED = "latestSpeed"
-        const val EXTRA_AVERAGE_SPEED = "averageSpeed"
         const val EXTRA_TOTAL_DISTANCE = "totalDistance"
+        const val EXTRA_FINAL_ACTIVITY = "finalActivity"
 
+        //Receive action from fragment
         const val ACTION_RESUME_RECORDING= "resumeRecording"
         const val ACTION_START_RECORDING = "startRecording"
         const val ACTION_STOP_RECORDING = "stopRecording"
@@ -318,6 +349,7 @@ class RecordService : Service(), SensorEventListener {
         const val ACTION_SETUP_LOCATION_REQUEST = "createLocationRequest"
         const val ACTION_SETUP_LOCATION_CALLBACK = "createLocationCallback"
 
+        //Notification related
         private const val NOTIFICATION_CHANNEL_ID = "RecordChannel"
         private const val NOTIFICATION_ID = 1
     }
