@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
@@ -36,10 +37,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.bottomAppBar)
+
         _viewModel = this.obtainViewModel()
 
         setupNavigation()
-        observeAuthState()
     }
 
     private fun observeAuthState(){
@@ -57,14 +59,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupNavigation(){
-        val navView : BottomNavigationView = binding.bottomNavView
-        navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+        /*val navView : BottomNavigationView = binding.bottomNavView
+        navController = Navigation.findNavController(this, R.id.nav_host_fragment) */
 
-        /* Alternative to get nav controller
-            val navHostFragment =
+        // Alternative to get nav controller
+        val navView : BottomNavigationView = binding.bottomNavView
+        val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-            val navController = navHostFragment.navController
-        */
+        navController = navHostFragment.navController
 
         val appBarConfiguration = AppBarConfiguration.Builder(
             R.id.homeFragment,
@@ -78,6 +80,8 @@ class MainActivity : AppCompatActivity() {
 
         setBottomNavigation(navController)
         handleRecordButton()
+
+        observeAuthState()
     }
 
     private fun handleRecordButton() {
