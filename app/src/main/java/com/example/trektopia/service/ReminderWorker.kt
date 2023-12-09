@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.trektopia.R
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.core.di.Injection
 import com.google.firebase.firestore.FirebaseFirestoreException
@@ -50,10 +51,10 @@ class ReminderWorker(
                 createNotificationChannel(notificationManager)
             }
 
-            //TODO: Set notification icon
             val notification = NotificationCompat.Builder(applicationContext, "reminder_channel_id")
+                .setSmallIcon(R.drawable.ic_walk)
                 .setContentTitle("Reminder")
-                .setContentText("You have a reminder for today!")
+                .setContentText("Don't forget to exercise today!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build()
 
