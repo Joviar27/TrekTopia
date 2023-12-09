@@ -31,7 +31,7 @@ class CustomProgressBar : RelativeLayout {
         progressText = findViewById(R.id.tv_task_progress)
     }
 
-    fun setProgress(percentage: Int, current: Double, required: Double) {
+    fun setProgress(percentage: Double, current: Double, required: Double) {
         val layoutParams = progressBar.layoutParams as LayoutParams
         val fullWidth = progressBackground.width
         layoutParams.width = (fullWidth * percentage / 100.0).toInt()
