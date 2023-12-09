@@ -29,9 +29,8 @@
         app:layout_constraintTop_toTopOf="@+id/iv_task_pic"
         tools:text="@tools:sample/lorem" />
 
-    <include
+    <com.example.trektopia.ui.custom.CustomProgressBar
         android:id="@+id/custom_task_progress"
-        layout="@layout/custom_task_progress"
         android:layout_width="160dp"
         android:layout_height="25dp"
         android:layout_marginBottom="8dp"
