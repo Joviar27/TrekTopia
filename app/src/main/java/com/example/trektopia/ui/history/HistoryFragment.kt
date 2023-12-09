@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.trektopia.R
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.databinding.FragmentHistoryBinding
 import com.example.trektopia.ui.adapter.ActivityAdapter
 import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.utils.safeNavigate
+import com.example.trektopia.utils.showToast
 
 class HistoryFragment : Fragment() {
 
@@ -64,13 +66,13 @@ class HistoryFragment : Fragment() {
                 }
                 is ResultState.Error ->{
                     loading(false)
-                    TODO("Handle error")
+                    resources.getString(R.string.page_failed_load).showToast(requireContext())
                 }
             }
         }
     }
 
     private fun loading(isLoading: Boolean){
-        TODO("Manage loading")
+        binding?.pbLoading?.visibility = if(isLoading) View.VISIBLE else View.GONE
     }
 }

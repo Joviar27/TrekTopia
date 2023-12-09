@@ -37,19 +37,38 @@ class HistoryDetailFragment : Fragment() {
         binding?.apply {
             //TODO: Create task map route placeholder
             Glide.with(requireActivity())
-                .load(activity.route.getStaticMapUri())
+                .load(activity.route.getStaticMapUri(requireContext()))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(ivActivityRoute)
+                .into(ivDetailRoute)
 
-            tvActivityDate.text = DateHelper.formatDateMonthYear(
+            tvDetailDate.text = DateHelper.formatDateMonthYear(
                 DateHelper.timeStampToLocalDate(activity.timeStamp)
             )
 
-            //TODO: Create placeholder string format
-            tvActivityDistance.text = activity.distance.toString()
-            tvActivityDuration.text = activity.duration.toString()
-            tvActivitySpeed.text = activity.speed.toString()
-            tvActivityStep.text = activity.stepCount.toString()
+            tvDetailDay.text = DateHelper.formatDayOfWeek(
+                DateHelper.timeStampToLocalDate(activity.timeStamp)
+            )
+
+            tvDetailTime.text  = resources.getString(
+                R.string.start_stop_format,
+                DateHelper.formatTime(
+                    DateHelper.timeStampToLocalDateTime(activity.startTime)
+                ),
+                DateHelper.formatTime(
+                    DateHelper.timeStampToLocalDateTime(activity.timeStamp)
+                )
+            )
+
+            detailDistance.tvLiveInfo.text = activity.distance.toString()
+            detailDistance.tvLiveType.text = resources.getString(R.string.km)
+
+            tvDetailDuration.text = DateHelper.formatElapsedTime(activity.duration)
+
+            detailSpeed.tvLiveInfo.text = activity.speed.toString()
+            detailSpeed.tvLiveType.text = resources.getString(R.string.km_h)
+
+            detailSteps.tvLiveInfo.text = activity.stepCount.toString()
+            detailSteps.tvLiveType.text = resources.getString(R.string.live_steps)
 
         }
     }
