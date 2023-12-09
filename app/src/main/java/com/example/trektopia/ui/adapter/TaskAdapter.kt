@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.trektopia.R
 import com.example.trektopia.core.model.operation.TaskWithProgress
 import com.example.trektopia.databinding.ItemTaskBinding
+import com.example.trektopia.ui.custom.CustomProgressBar
 
 class TaskAdapter (
     private val onClaim :(
@@ -18,21 +20,26 @@ class TaskAdapter (
     ) -> Unit
 ): ListAdapter<TaskWithProgress, TaskAdapter.ItemViewHolder>(DIFF_CALLBACK){
 
+    private var limit: Int = 30;
+
     inner class ItemViewHolder(private var binding: ItemTaskBinding) : RecyclerView.ViewHolder (binding.root){
         fun bind(taskWithProgress: TaskWithProgress){
 
             binding.apply {
-                //TODO: Create task pic placeholder
                 Glide.with(itemView.context)
                     .load(taskWithProgress.task.pictureUri)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.color.on_secondary_container)
                     .into(ivTaskPic)
 
                 tvTaskName.text = taskWithProgress.task.name
-                //TODO: Create string placeholder to display info
                 tvTaskReward.text = taskWithProgress.task.reward.toString()
-                tvTaskPercentage.text = taskWithProgress.progress.percentage.toString()
-                tvTaskProgress.text = "${taskWithProgress.progress.current} / ${taskWithProgress.task.requirement}"
+
+                customTaskProgress.setProgress(
+                    taskWithProgress.progress.percentage,
+                    taskWithProgress.progress.current,
+                    taskWithProgress.task.requirement
+                )
 
                 btnTaskClaimReward.isEnabled = !taskWithProgress.progress.enabled
 
@@ -57,6 +64,19 @@ class TaskAdapter (
             holder.bind(taskWithProgress)
         }
     }
+
+    override fun getItemCount(): Int {
+        return if(currentList.size > limit){
+            limit
+        }else{
+            currentList.size
+        }
+    }
+
+    fun setLimit(){
+        limit = 5
+    }
+
 
     companion object {
         val DIFF_CALLBACK: DiffUtil.ItemCallback<TaskWithProgress> =

@@ -18,18 +18,13 @@ class StreakAdapter : ListAdapter<Pair<Boolean,Timestamp>, StreakAdapter.ItemVie
         fun bind(history: Pair<Boolean,Timestamp>){
             val date = DateHelper.timeStampToLocalDate(history.second)
             binding.apply {
-                tvSteakDate.text = DateHelper.formatDateMonth(date)
-                tvStreakDay.text = DateHelper.formatDayOfWeek(date)
+                tvStreakDate.text = DateHelper.formatDateMonth(date)
+                tvStreakDay.text = DateHelper.formatDayOfWeek(date).substring(0,2)
 
-                val indicator = if(history.first){
-                    //TODO("Set indicator if there's activity")
-                    ContextCompat.getDrawable(itemView.context, R.drawable.ic_arrow_back_24)
+                val indicator = if(history.first) R.drawable.bg_streak_tertiary_8
+                else R.drawable.bg_streak_outlined_8
 
-                } else{
-                    //TODO("Set indicator if there's activity")
-                    ContextCompat.getDrawable(itemView.context, R.drawable.ic_home_24)
-                }
-                ivStreakIndicator.setImageDrawable(indicator)
+                tvStreakDay.setBackgroundResource(indicator)
             }
         }
     }
