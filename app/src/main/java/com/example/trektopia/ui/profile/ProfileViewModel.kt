@@ -1,5 +1,6 @@
 package com.example.trektopia.ui.profile
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -34,6 +35,8 @@ class ProfileViewModel(
     val user = repository.getUserData(uid).asLiveData()
 
     fun updateUserInfo(newUser:User) = repository.updateUserInfo(uid, newUser).asLiveData()
+
+    fun updateProfile(newUri : Uri) = repository.updateProfilePicture(newUri, uid).asLiveData()
 
     val achievements = gameRepository.getTaskWithProgress(uid, TaskType.ACHIEVEMENT).asLiveData()
 
