@@ -45,7 +45,7 @@
     <fragment
         android:id="@+id/historyFragment"
         android:name="com.example.trektopia.ui.history.HistoryFragment"
-        android:label="fragment_history"
+        android:label="History"
         tools:layout="@layout/fragment_history" >
         <action
             android:id="@+id/action_historyFragment_to_historyDetailFragment"
@@ -54,7 +54,7 @@
     <fragment
         android:id="@+id/historyDetailFragment"
         android:name="com.example.trektopia.ui.history.HistoryDetailFragment"
-        android:label="fragment_history_detail"
+        android:label="Detail"
         tools:layout="@layout/fragment_history_detail" >
         <argument
             android:name="activity"
@@ -63,7 +63,7 @@
     <fragment
         android:id="@+id/recordFragment"
         android:name="com.example.trektopia.ui.record.RecordFragment"
-        android:label="fragment_record"
+        android:label="Record"
         tools:layout="@layout/fragment_record" >
         <action
             android:id="@+id/action_recordFragment_to_recapFragment"
@@ -72,7 +72,7 @@
     <fragment
         android:id="@+id/recapFragment"
         android:name="com.example.trektopia.ui.record.RecapFragment"
-        android:label="fragment_recap"
+        android:label="Recap"
         tools:layout="@layout/fragment_recap" >
         <argument
             android:name="activity"
@@ -92,12 +92,12 @@
     <fragment
         android:id="@+id/fullAchievementsFragment"
         android:name="com.example.trektopia.ui.profile.FullAchievementsFragment"
-        android:label="fragment_full_achievements"
+        android:label="Full Achievements"
         tools:layout="@layout/fragment_full_achievements" />
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.trektopia.ui.profile.ProfileFragment"
-        android:label="ProfileFragment"
+        android:label="Profile"
         tools:layout="@layout/fragment_profile">
         <action
             android:id="@+id/action_profileFragment_to_fullAchievementsFragment"
