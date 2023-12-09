@@ -16,7 +16,6 @@
         app:navigationIconTint="?attr/colorOnSecondaryContainer"
         app:titleTextColor="?attr/colorOnSecondaryContainer"/>
 
-    <!--  TODO: Change FAB image  -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_record"
         android:layout_width="wrap_content"
@@ -46,7 +45,6 @@
         app:fabCradleRoundedCornerRadius="16dp"
         app:fabCradleVerticalOffset="0dp">
 
-        <!--  TODO: Change menu icon  -->
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_nav_view"
             android:layout_width="match_parent"

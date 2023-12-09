@@ -25,7 +25,7 @@
             android:paddingVertical="24dp">
 
             <include
-                android:id="@+id/detail_steps"
+                android:id="@+id/live_steps"
                 layout="@layout/layout_activity_live"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -33,16 +33,16 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <include
-                android:id="@+id/detail_distance"
+                android:id="@+id/live_distance"
                 layout="@layout/layout_activity_live"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toStartOf="@+id/detail_speed"
-                app:layout_constraintStart_toEndOf="@+id/detail_steps"
+                app:layout_constraintEnd_toStartOf="@+id/live_speed"
+                app:layout_constraintStart_toEndOf="@+id/live_steps"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <include
-                android:id="@+id/detail_speed"
+                android:id="@+id/live_speed"
                 layout="@layout/layout_activity_live"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -58,7 +58,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/detail_distance"
+                app:layout_constraintTop_toBottomOf="@+id/live_distance"
                 tools:text="00 : 00 : 00" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
