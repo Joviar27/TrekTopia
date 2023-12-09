@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.trektopia.R
 import com.example.trektopia.core.model.Activity
 import com.example.trektopia.databinding.ItemActivityBinding
 import com.example.trektopia.utils.DateHelper
@@ -22,21 +23,26 @@ class ActivityAdapter (
         fun bind(activity: Activity) {
 
             binding.apply {
-                //TODO: Create task map route placeholder
                 Glide.with(itemView.context)
-                    .load(activity.route.getStaticMapUri())
+                    .load(activity.route.getStaticMapUri(itemView.context))
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.color.white)
                     .into(ivActivityRoute)
 
                 tvActivityDate.text = DateHelper.formatDateMonthYear(
                     DateHelper.timeStampToLocalDate(activity.timeStamp)
                 )
 
-                //TODO: Create placeholder string format
-                tvActivityDistance.text = activity.distance.toString()
-                tvActivityDuration.text = activity.duration.toString()
-                tvActivitySpeed.text = activity.speed.toString()
-                tvActivityStep.text = activity.stepCount.toString()
+                distanceInfo.tvActivityInfo.text = activity.distance.toString()
+                distanceInfo.tvInfoType.text = itemView.context.resources.getString(R.string.km)
+
+                tvRecapDuration.text = DateHelper.formatElapsedTime(activity.duration)
+
+                speedInfo.tvActivityInfo.text = activity.speed.toString()
+                speedInfo.tvInfoType.text = itemView.context.resources.getString(R.string.km_h)
+
+                stepInfo.tvInfoType.text = activity.stepCount.toString()
+                stepInfo.tvInfoType.text = itemView.context.resources.getString(R.string.steps)
 
                 itemView.setOnClickListener {
                     onClick(activity)
