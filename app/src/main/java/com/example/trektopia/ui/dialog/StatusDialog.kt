@@ -2,6 +2,8 @@ package com.example.trektopia.ui.dialog
 
 import android.app.Dialog
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
@@ -38,17 +40,15 @@ class StatusDialog : DialogFragment() {
         val view = binding.root
 
         binding.apply {
-            ivIcon.setImageDrawable(ResourcesCompat.getDrawable(resources,icon,null))
+            ivIcon.setBackgroundResource(icon)
             tvMessage.text = message
         }
+
 
         return AlertDialog.Builder(requireActivity())
             .setView(view)
             .setTitle("Please wait..")
             .create()
-    }
 
-    fun closeDialog(){
-        dismiss()
     }
 }

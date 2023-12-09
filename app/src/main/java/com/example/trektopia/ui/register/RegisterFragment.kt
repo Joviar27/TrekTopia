@@ -13,6 +13,7 @@ import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.utils.safeNavigate
 import com.example.trektopia.utils.showToast
 import com.example.trektopia.databinding.FragmentRegisterBinding
+import com.example.trektopia.ui.dialog.StatusDialog
 
 class RegisterFragment : Fragment() {
 
@@ -21,6 +22,9 @@ class RegisterFragment : Fragment() {
 
     private var _viewModel: RegisterViewModel? = null
     private val viewModel get() = _viewModel
+
+    private var _statusDialog: StatusDialog? = null
+    private val statusDialog get() = _statusDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +59,11 @@ class RegisterFragment : Fragment() {
                 navigateToLogin()
             }
         }
+
+        _statusDialog = StatusDialog.newInstance(
+            R.drawable.ic_loading,
+            resources.getString(R.string.dialog_loading_login),
+        )
     }
 
     private fun validateInputs(username:String, email: String, password: String) {
@@ -110,6 +119,7 @@ class RegisterFragment : Fragment() {
     }
 
     private fun showLoading(isLoading : Boolean){
-        TODO("Manage loading view")
+        if(isLoading) statusDialog?.show(childFragmentManager, "LoadingStatusDialog")
+        else statusDialog?.dismiss()
     }
 }

@@ -14,6 +14,7 @@ import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.utils.safeNavigate
 import com.example.trektopia.utils.showToast
 import com.example.trektopia.databinding.FragmentLoginBinding
+import com.example.trektopia.ui.dialog.StatusDialog
 
 class LoginFragment : Fragment() {
     private var _binding: FragmentLoginBinding? = null
@@ -22,6 +23,8 @@ class LoginFragment : Fragment() {
     private var _viewModel: LoginViewModel? = null
     private val viewModel get() = _viewModel
 
+    private var _statusDialog: StatusDialog? = null
+    private val statusDialog get() = _statusDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,12 +60,17 @@ class LoginFragment : Fragment() {
                 view?.findNavController()?.safeNavigate(direction)
             }
         }
+
+        _statusDialog = StatusDialog.newInstance(
+            R.drawable.ic_loading,
+            resources.getString(R.string.dialog_loading_login),
+        )
     }
 
     private fun validateInputs(email: String, password: String) {
         binding?.apply {
             when {
-                email.isEmpty() -> edtEmail.error =
+                email.isEmpty() -> edtEmail. error =
                     resources.getString(R.string.err_required)
                 !email.isValidEmail() -> edtEmail.error =
                     resources.getString(R.string.err_invalid_email)
@@ -104,7 +112,8 @@ class LoginFragment : Fragment() {
     }
 
     private fun showLoading(isLoading : Boolean){
-        TODO("Manage loading view")
+        if(isLoading) statusDialog?.show(childFragmentManager, "LoadingStatusDialog")
+        else statusDialog?.dismiss()
     }
 
 }
