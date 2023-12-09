@@ -9,12 +9,14 @@ import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.trektopia.R
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.databinding.FragmentLeaderboardBinding
 import com.example.trektopia.ui.adapter.UserAdapter
 import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.core.model.User
 import com.example.trektopia.utils.getStaticMapUri
+import com.example.trektopia.utils.showToast
 
 class LeaderboardFragment : Fragment() {
 
@@ -86,7 +88,7 @@ class LeaderboardFragment : Fragment() {
                 }
                 is ResultState.Error -> {
                     loading(false)
-                    TODO("Handle error")
+                    resources.getString(R.string.page_failed_load).showToast(requireContext())
                 }
             }
         }
@@ -95,24 +97,18 @@ class LeaderboardFragment : Fragment() {
     private fun observerUserDate(){
         viewModel.currentUser.observe(requireActivity()){userResult ->
             when (userResult) {
-                is ResultState.Loading -> loadingUser(true)
+                is ResultState.Loading -> Unit
                 is ResultState.Success -> {
-                    loadingUser(false)
                     setupUser(userResult.data)
                 }
                 is ResultState.Error -> {
-                    loadingUser(false)
-                    TODO("Handle error")
+                    resources.getString(R.string.page_failed_load).showToast(requireContext())
                 }
             }
         }
     }
 
     private fun loading(isLoading: Boolean){
-        TODO("Manage loading")
-    }
-
-    private fun loadingUser(isLoading: Boolean){
-        TODO("Manage userloading")
+        binding?.pbLoading?.visibility = if(isLoading) View.VISIBLE else View.GONE
     }
 }
