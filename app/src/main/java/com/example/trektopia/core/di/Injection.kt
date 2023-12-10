@@ -1,5 +1,6 @@
 package com.example.trektopia.core.di
 
+import android.util.Log
 import com.example.trektopia.core.data.AuthDataSource
 import com.example.trektopia.core.data.FirestoreDataSource
 import com.example.trektopia.core.data.StorageDataSource
@@ -17,11 +18,12 @@ object Injection {
     private fun provideFirestoreDataSource() = FirestoreDataSource(Firebase.firestore)
     private fun provideStorageDataSource() = StorageDataSource(Firebase.storage.reference)
 
-    fun provideAuthRepository() =
-        AuthRepository(
+    fun provideAuthRepository(): AuthRepository{
+        return AuthRepository(
             provideAuthDataSource(),
             provideFirestoreDataSource()
         )
+    }
 
     fun provideGameRepository() =
         GameRepository(

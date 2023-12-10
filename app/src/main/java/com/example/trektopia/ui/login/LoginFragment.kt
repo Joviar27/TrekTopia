@@ -55,9 +55,9 @@ class LoginFragment : Fragment() {
                 validateInputs(email, password)
             }
             btnToRegister.setOnClickListener {
-                val direction =
+                val toRegister =
                     LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
-                view?.findNavController()?.safeNavigate(direction)
+                view?.findNavController()?.safeNavigate(toRegister)
             }
         }
 
@@ -106,6 +106,8 @@ class LoginFragment : Fragment() {
                     showLoading(false)
                     resources.getString(R.string.signin_succcess)
                         .showToast(requireContext())
+                    val toHome = LoginFragmentDirections.actionLoginFragmentToHomeFragment()
+                    view?.findNavController()?.safeNavigate(toHome)
                 }
             }
         }

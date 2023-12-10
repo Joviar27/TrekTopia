@@ -1,6 +1,8 @@
 package com.example.trektopia.ui.register
 
+import android.content.ContentValues.TAG
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -68,21 +70,30 @@ class RegisterFragment : Fragment() {
 
     private fun validateInputs(username:String, email: String, password: String) {
         binding?.apply {
-            when {
-                username.isEmpty() -> edtUsername.error =
-                    resources.getString(R.string.err_required)
-                email.isEmpty() -> edtEmail.error =
-                    resources.getString(R.string.err_required)
-                !email.isValidEmail() -> edtEmail.error =
-                    resources.getString(R.string.err_invalid_email)
-                password.isEmpty() -> edtPassword.error =
-                    resources.getString(R.string.err_required)
-                password.length < 8 -> edtPassword.error =
-                    resources.getString(R.string.err_invalid_pass_1)
-                password.contains(" ") -> edtPassword.error =
-                    resources.getString(R.string.err_invalid_pass_2)
-
-                else -> signUp(username, email, password)
+            var isValid = true
+            if (username.isEmpty()) {
+                edtUsername.error = resources.getString(R.string.err_required)
+                isValid = false
+            }
+            if (email.isEmpty()) {
+                edtEmail.error = resources.getString(R.string.err_required)
+                isValid = false
+            } else if (!email.isValidEmail()) {
+                edtEmail.error = resources.getString(R.string.err_invalid_email)
+                isValid = false
+            }
+            if (password.isEmpty()) {
+                edtPassword.error = resources.getString(R.string.err_required)
+                isValid = false
+            } else if (password.length < 8) {
+                edtPassword.error = resources.getString(R.string.err_invalid_pass_1)
+                isValid = false
+            } else if (password.contains(" ")) {
+                edtPassword.error = resources.getString(R.string.err_invalid_pass_2)
+                isValid = false
+            }
+            if (isValid) {
+                signUp(username, email, password)
             }
         }
     }
@@ -105,8 +116,9 @@ class RegisterFragment : Fragment() {
                 }
                 is ResultState.Success -> {
                     showLoading(false)
-                    resources.getString(R.string.signin_succcess)
+                    resources.getString(R.string.signup_succcess)
                         .showToast(requireContext())
+                    navigateToLogin()
                 }
             }
         }

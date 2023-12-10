@@ -24,7 +24,7 @@ class AuthDataSource(
             .addOnCompleteListener { task ->
                 val user = task.result.user
                 if(user != null && task.isSuccessful){
-                    Log.e("AuthDataSource", "Sign Up Success")
+                    Log.d("AuthDataSource", "Sign Up Success")
                     trySend(ResultState.Success(user.uid))
                 }
                 else{
@@ -43,17 +43,21 @@ class AuthDataSource(
     ): Flow<ResultState<String>> = callbackFlow {
         trySend(ResultState.Loading)
         auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener{ task ->
-                val user = task.result.user
-                if(user != null && task.isSuccessful){
-                    Log.e("AuthDataSource", "Sign In Success")
+            .addOnSuccessListener { authResult ->
+                val user = authResult.user
+                if (user != null) {
+                    Log.d("AuthDataSource", "Sign In Success")
                     trySend(ResultState.Success(user.uid))
-                }
-                else{
-                    val exception = task.exception?.message ?: "User is Null"
+                } else {
+                    val exception = "User is Null"
                     Log.e("AuthDataSource", "SignIn: $exception")
                     trySend(ResultState.Error(exception))
                 }
+                close()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("AuthDataSource", "SignIn: ${exception.message}")
+                trySend(ResultState.Error(exception.message ?: "Unknown error"))
                 close()
             }
         awaitClose()
