@@ -1,5 +1,6 @@
 package com.example.trektopia.core.repository
 
+import android.util.Log
 import com.example.trektopia.core.AuthState
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.core.data.AuthDataSource
@@ -16,6 +17,10 @@ class AuthRepository(
     fun signIn(email: String, password: String) =
         auth.signIn(email, password)
 
+//    fun signUp(username: String, email: String, password: String) =
+//        auth.signUp(email, password)
+
+
     fun getAuthState() = auth.getAuthState()
 
     fun getUid(): Flow<String> = auth.getUid()
@@ -27,6 +32,7 @@ class AuthRepository(
         email: String,
         password: String
     ): Flow<ResultState<String>> = flow{
+        Log.d("AuthRepository", "Disini jalan kok")
         auth.signUp(email,password).map { result ->
             when(result) {
                 is ResultState.Success -> {

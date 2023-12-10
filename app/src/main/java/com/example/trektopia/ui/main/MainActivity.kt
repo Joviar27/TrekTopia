@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
@@ -21,6 +22,8 @@ import com.example.trektopia.databinding.ActivityMainBinding
 import com.example.trektopia.ui.record.RecordFragment
 import com.example.trektopia.utils.showToast
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -54,7 +57,11 @@ class MainActivity : AppCompatActivity() {
                     R.id.loginFragment
                 }
             }
-            navController.safeNavigate(destination)
+            lifecycleScope.launch {
+                delay(1500)
+                navController.popBackStack()
+                navController.navigate(destination)
+            }
         }
     }
 
@@ -79,8 +86,8 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         setBottomNavigation(navController)
-        handleRecordButton()
 
+        handleRecordButton()
         observeAuthState()
     }
 
@@ -103,7 +110,7 @@ class MainActivity : AppCompatActivity() {
             if (locationPermissionGranted && activityPermissionGranted) {
                 requestPermissionLauncher.launch(RecordFragment.REQUIRED_PERMISSIONS)
             } else {
-                navController.safeNavigate(R.id.recordFragment)
+                navController.navigate(R.id.recordFragment)
             }
         }
     }
@@ -123,7 +130,7 @@ class MainActivity : AppCompatActivity() {
                     fineLocationPermission || coarseLocationPermission
                 }
 
-            if (isPermissionGranted) navController.safeNavigate(R.id.recordFragment)
+            if (isPermissionGranted) navController.navigate(R.id.recordFragment)
             else "Permission request denied".showToast(this)
         }
 
@@ -137,7 +144,9 @@ class MainActivity : AppCompatActivity() {
 
     private fun setBottomNavigation(navController: NavController) {
         navController.addOnDestinationChangedListener { controller, destination, _ ->
-            binding.bottomNavView.visibility =
+            binding.bottomAppBar.visibility =
+                if (listFragmentBottomBar.contains(destination.id)) View.VISIBLE else View.GONE
+            binding.fabRecord.visibility =
                 if (listFragmentBottomBar.contains(destination.id)) View.VISIBLE else View.GONE
 
             binding.materialToolbar.apply {
