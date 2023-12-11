@@ -5,8 +5,12 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginTop
+import androidx.fragment.app.FragmentContainer
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -30,7 +34,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private var _viewModel: AuthViewModel? = null
-    private val viewModel get() = _viewModel
 
     private lateinit var navController:NavController
 
@@ -47,23 +50,6 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
     }
 
-    private fun observeAuthState(){
-        viewModel?.authState?.observe(this){ authState ->
-            val destination = when(authState){
-                is AuthState.Authenticated -> {
-                    R.id.homeFragment
-                }
-                is AuthState.UnAuthenticated ->{
-                    R.id.loginFragment
-                }
-            }
-            lifecycleScope.launch {
-                delay(1500)
-                navController.popBackStack()
-                navController.navigate(destination)
-            }
-        }
-    }
 
     private fun setupNavigation(){
         /*val navView : BottomNavigationView = binding.bottomNavView
@@ -88,7 +74,6 @@ class MainActivity : AppCompatActivity() {
         setBottomNavigation(navController)
 
         handleRecordButton()
-        observeAuthState()
     }
 
     private fun handleRecordButton() {
@@ -145,9 +130,9 @@ class MainActivity : AppCompatActivity() {
     private fun setBottomNavigation(navController: NavController) {
         navController.addOnDestinationChangedListener { controller, destination, _ ->
             binding.bottomAppBar.visibility =
-                if (listFragmentBottomBar.contains(destination.id)) View.VISIBLE else View.GONE
+                if(listFragmentBottomBar.contains(destination.id))View.VISIBLE else View.GONE
             binding.fabRecord.visibility =
-                if (listFragmentBottomBar.contains(destination.id)) View.VISIBLE else View.GONE
+                if(listFragmentBottomBar.contains(destination.id))View.VISIBLE else View.GONE
 
             binding.materialToolbar.apply {
                 visibility =
