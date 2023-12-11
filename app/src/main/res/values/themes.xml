@@ -17,7 +17,7 @@
         <item name="colorOnTertiary">@color/white</item>
         <item name="colorOnTertiaryContainer">@color/on_tertiary_container</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/secondary_container</item>
         <!-- Customize your theme here. -->
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/black</item>
