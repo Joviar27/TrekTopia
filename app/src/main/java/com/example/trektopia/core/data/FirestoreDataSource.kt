@@ -11,8 +11,6 @@ import com.example.trektopia.core.model.abstraction.Task
 import com.example.trektopia.core.model.operation.UpdateProgress
 import com.example.trektopia.core.model.enum.TaskType
 import com.example.trektopia.core.model.User
-import com.example.trektopia.core.model.UserAchievementRelation
-import com.example.trektopia.core.model.UserMissionRelation
 import com.example.trektopia.utils.DateHelper
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.CollectionReference
@@ -609,7 +607,7 @@ class FirestoreDataSource(
         userId: String,
         taskId: String,
     ){
-        val relation = UserAchievementRelation(
+        val relation = Relation(
             userRef = userId,
             taskRef = taskId,
             progress = Progress(),
@@ -624,7 +622,7 @@ class FirestoreDataSource(
         userId: String,
         taskId: String,
     ){
-        val relation = UserMissionRelation(
+        val relation = Relation(
             userRef = userId,
             taskRef = taskId,
             progress = Progress(),
