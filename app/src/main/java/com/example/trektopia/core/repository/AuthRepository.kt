@@ -32,8 +32,7 @@ class AuthRepository(
         email: String,
         password: String
     ): Flow<ResultState<String>> = flow{
-        Log.d("AuthRepository", "Disini jalan kok")
-        auth.signUp(email,password).map { result ->
+        auth.signUp(email,password).collect { result ->
             when(result) {
                 is ResultState.Success -> {
                     val setupResult = firestore.setupUser(result.data, username, email)
