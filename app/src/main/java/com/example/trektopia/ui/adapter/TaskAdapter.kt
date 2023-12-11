@@ -41,7 +41,7 @@ class TaskAdapter (
                     taskWithProgress.task.requirement
                 )
 
-                btnTaskClaimReward.isEnabled = !taskWithProgress.progress.enabled
+                btnTaskClaimReward.isEnabled = taskWithProgress.progress.enabled
 
                 btnTaskClaimReward.setOnClickListener {
                     onClaim(
