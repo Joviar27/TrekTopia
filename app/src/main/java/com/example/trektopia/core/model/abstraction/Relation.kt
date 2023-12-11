@@ -3,9 +3,9 @@ package com.example.trektopia.core.model.abstraction
 import com.example.trektopia.core.model.Progress
 import com.google.firebase.Timestamp
 
-abstract class Relation(
-    open val userRef: String,
-    open val taskRef: String,
-    open val progress: Progress,
-    open val activeDate: Timestamp?,
+data class Relation(
+    val userRef: String = "",
+    val taskRef: String = "",
+    val progress: Progress = Progress(),
+    val activeDate: Timestamp? = Timestamp.now(),
 )
