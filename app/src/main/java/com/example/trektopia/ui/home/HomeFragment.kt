@@ -3,30 +3,32 @@ package com.example.trektopia.ui.home
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.trektopia.R
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.core.model.User
-import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.databinding.FragmentHomeBinding
+import com.example.trektopia.ui.DividerItemDecorator
 import com.example.trektopia.ui.adapter.StreakAdapter
 import com.example.trektopia.ui.adapter.TaskAdapter
 import com.example.trektopia.ui.dialog.StatusDialog
 import com.example.trektopia.utils.DateHelper
+import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.utils.showToast
-import com.google.android.material.divider.MaterialDividerItemDecoration
 import com.google.firebase.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
+
 
 class HomeFragment : Fragment() {
 
@@ -65,7 +67,7 @@ class HomeFragment : Fragment() {
             Glide.with(requireActivity())
                 .load(user.pictureUri)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(R.color.secondary_container)
+                .placeholder(R.color.secondary)
                 .into(binding!!.ivUserPic)
 
             tvUserName.text = user.username
@@ -103,17 +105,14 @@ class HomeFragment : Fragment() {
 
         val layoutManager = LinearLayoutManager(requireContext())
 
-        val materialDividerItemDecoration =
-            MaterialDividerItemDecoration(requireContext(), layoutManager.orientation)
-        materialDividerItemDecoration.dividerColor =
-            ContextCompat.getColor(requireContext(), R.color.secondary)
-        materialDividerItemDecoration.dividerThickness =
-            resources.getDimension(R.dimen.divider_width).toInt()
+        val dividerItemDecoration: ItemDecoration = DividerItemDecorator(
+            ContextCompat.getDrawable(requireContext(), R.drawable.divider)
+        )
 
         binding?.rvTask?.apply {
             adapter = taskAdapter
             setLayoutManager(layoutManager)
-            addItemDecoration(materialDividerItemDecoration)
+            addItemDecoration(dividerItemDecoration)
         }
     }
 
@@ -123,10 +122,10 @@ class HomeFragment : Fragment() {
                 is ResultState.Loading -> showLoading(
                     resources.getString(R.string.dialog_loading_claim)
                 )
-                is ResultState.Error -> showSuccess(
+                is ResultState.Error -> showFailed(
                     resources.getString(R.string.dialog_fail_claim)
                 )
-                is ResultState.Success -> showLoading(
+                is ResultState.Success -> showSuccess(
                     resources.getString(R.string.dialog_success_claim)
                 )
             }
@@ -178,7 +177,7 @@ class HomeFragment : Fragment() {
 
     private fun missionHourCountdown(missionActiveDate: LocalDate): Int {
         val endOfMissionActive = LocalDateTime.of(missionActiveDate, LocalTime.MAX)
-        val remainingMillis = ChronoUnit.MILLIS.between(LocalDate.now(), endOfMissionActive)
+        val remainingMillis = ChronoUnit.MILLIS.between(LocalTime.now(), endOfMissionActive)
         return (remainingMillis / 3600000).toInt()
     }
 
