@@ -27,6 +27,7 @@ class CustomProgressBar : RelativeLayout {
 
     private fun init() {
         inflate(context, R.layout.custom_task_progress, this)
+        progressBackground = findViewById(R.id.task_percentage)
         progressBar = findViewById(R.id.task_percentage)
         progressText = findViewById(R.id.tv_task_progress)
     }
