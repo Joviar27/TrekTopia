@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.example.trektopia.R
 import com.example.trektopia.core.AuthState
@@ -42,7 +41,7 @@ class SplashFragment : Fragment() {
     }
 
     private fun observeAuthState(){
-        viewModel?.authState?.observe(requireActivity()){ authState ->
+        viewModel.authState.observe(requireActivity()){ authState ->
             val destination = when(authState){
                 is AuthState.Authenticated -> {
                     R.id.homeFragment
