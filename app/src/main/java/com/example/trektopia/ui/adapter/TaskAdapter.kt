@@ -3,6 +3,7 @@ package com.example.trektopia.ui.adapter
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -11,7 +12,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.trektopia.R
 import com.example.trektopia.core.model.operation.TaskWithProgress
 import com.example.trektopia.databinding.ItemTaskBinding
-import com.example.trektopia.ui.custom.CustomProgressBar
 
 class TaskAdapter (
     private val onClaim :(
@@ -20,7 +20,7 @@ class TaskAdapter (
     ) -> Unit
 ): ListAdapter<TaskWithProgress, TaskAdapter.ItemViewHolder>(DIFF_CALLBACK){
 
-    private var limit: Int = 30;
+    private var limit: Int = 30
 
     inner class ItemViewHolder(private var binding: ItemTaskBinding) : RecyclerView.ViewHolder (binding.root){
         fun bind(taskWithProgress: TaskWithProgress){
@@ -29,7 +29,7 @@ class TaskAdapter (
                 Glide.with(itemView.context)
                     .load(taskWithProgress.task.pictureUri)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.color.on_secondary_container)
+                    .placeholder(R.color.secondary)
                     .into(ivTaskPic)
 
                 tvTaskName.text = taskWithProgress.task.name
@@ -41,7 +41,15 @@ class TaskAdapter (
                     taskWithProgress.task.requirement
                 )
 
-                btnTaskClaimReward.isEnabled = taskWithProgress.progress.enabled
+                taskWithProgress.progress.enabled.let {
+                    btnTaskClaimReward.isEnabled = it
+                    if(!it) btnTaskClaimReward.apply {
+                        setTextColor(
+                            ContextCompat.getColor(itemView.context,R.color.white)
+                        )
+                        alpha = 0.7F
+                    }
+                }
 
                 btnTaskClaimReward.setOnClickListener {
                     onClaim(
