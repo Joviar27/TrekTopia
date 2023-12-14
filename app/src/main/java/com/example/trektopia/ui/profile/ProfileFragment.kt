@@ -1,21 +1,18 @@
 package com.example.trektopia.ui.profile
 
-import android.app.Activity
-import android.content.Intent
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.view.MenuProvider
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -26,13 +23,13 @@ import com.example.trektopia.core.model.User
 import com.example.trektopia.databinding.FragmentProfileBinding
 import com.example.trektopia.ui.adapter.TaskAdapter
 import com.example.trektopia.ui.dialog.StatusDialog
-import com.example.trektopia.ui.history.HistoryFragmentDirections
+import com.example.trektopia.utils.createCustomDrawable
 import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.utils.safeNavigate
 import com.example.trektopia.utils.showToast
 import com.google.android.material.divider.MaterialDividerItemDecoration
 
-class ProfileFragment : Fragment(), MenuProvider {
+class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding
@@ -42,17 +39,24 @@ class ProfileFragment : Fragment(), MenuProvider {
     private lateinit var statusDialog: StatusDialog
 
     private val launcherIntentGallery = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val selectedImg = result.data?.data as Uri
-            selectedImg.let { uri ->
-                uploadNewImage(uri)
-            }
+        ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            uploadNewImage(uri)
         } else {
             resources.getString(R.string.gallery_failed).showToast(requireContext())
         }
     }
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            launcherIntentGallery.launch("image/*")
+        } else {
+            resources.getString(R.string.gallery_not_permitted)
+        }
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,15 +81,23 @@ class ProfileFragment : Fragment(), MenuProvider {
 
     private fun setupUserView(user: User) {
         binding?.apply {
-            //TODO: Add placeholder
-            Glide.with(requireActivity())
-                .load(user.pictureUri)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(ivUserPic)
+            if(user.pictureUri==null){
+                val custom = user.username[0]
+                    .uppercaseChar()
+                    .createCustomDrawable(requireContext())
+                ivUserPic.setImageDrawable(custom)
+            } else{
+                Glide.with(requireActivity())
+                    .load(user.pictureUri)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.color.secondary)
+                    .into(ivUserPic)
+            }
 
             showOriginalButtonViews()
 
             tvUserName.text = user.username
+            tvUserEmail.text = user.email
             tvUserPoint.text = user.point.toString()
 
             setEditButtonClickListener(user)
@@ -102,12 +114,23 @@ class ProfileFragment : Fragment(), MenuProvider {
         }
     }
 
-    private fun updateProfilePicture(){
-        val intent = Intent()
-        intent.action = Intent.ACTION_GET_CONTENT
-        intent.type = "image/*"
-        val chooser = Intent.createChooser(intent, resources.getString(R.string.chooser))
-        launcherIntentGallery.launch(chooser)
+    private fun updateProfilePicture() {
+        if (isGalleryPermissionGranted()) {
+            launcherIntentGallery.launch("image/*")
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        }
+    }
+
+    private fun isGalleryPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun uploadNewImage(newUri: Uri){
@@ -129,8 +152,8 @@ class ProfileFragment : Fragment(), MenuProvider {
     private fun setEditButtonClickListener(user: User) {
         binding?.apply {
             btnEditUsername.setOnClickListener {
-                btnEditUsername.visibility = View.GONE
-                tvUserName.visibility = View.GONE
+                btnEditUsername.visibility = View.INVISIBLE
+                tvUserName.visibility = View.INVISIBLE
 
                 btnSaveUsername.visibility = View.VISIBLE
                 edtUserName.visibility = View.VISIBLE
@@ -141,15 +164,15 @@ class ProfileFragment : Fragment(), MenuProvider {
     }
 
     private fun setSaveButtonClickListener(user: User) {
-        binding?.apply {
-            btnSaveUsername.setOnClickListener {
-                val newUsername = edtUserName.text.toString()
+        binding?.btnSaveUsername?.setOnClickListener {
+            val newUsername = binding?.edtUserName?.text.toString()
+            if(newUsername.isNotEmpty()){
                 val newUser = user.copy(username = newUsername)
-
                 viewModel.updateUserInfo(newUser).observe(requireActivity()) { updateResult ->
                     handleUpdateResult(updateResult)
                 }
             }
+            showOriginalButtonViews()
         }
     }
 
@@ -172,8 +195,10 @@ class ProfileFragment : Fragment(), MenuProvider {
             btnEditUsername.visibility = View.VISIBLE
             tvUserName.visibility = View.VISIBLE
 
-            btnSaveUsername.visibility = View.GONE
-            edtUserName.visibility = View.GONE
+            btnSaveUsername.visibility = View.INVISIBLE
+            edtUserName.visibility = View.INVISIBLE
+
+            edtUserName.text.clear()
         }
     }
 
@@ -244,18 +269,6 @@ class ProfileFragment : Fragment(), MenuProvider {
                 }
             }
         }
-    }
-
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        menuInflater.inflate(R.menu.menu_profile, menu)
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        if(menuItem.itemId == R.id.logout){
-            viewModel.logout()
-            return true
-        }
-        return false
     }
 
     private fun showLoading(message: String){
