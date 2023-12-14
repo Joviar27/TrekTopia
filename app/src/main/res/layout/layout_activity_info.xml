@@ -2,7 +2,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="55dp"
+    android:layout_width="52dp"
     android:layout_height="50dp"
     android:background="@drawable/bg_common_8"
     android:backgroundTint="?attr/colorSecondary"
@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TitleMedium.SemiBold.White"
-        tools:text="56K"
+        tools:text="99K"
         android:maxLines="1"/>
     
     <TextView
