@@ -11,6 +11,7 @@ import com.example.trektopia.core.model.abstraction.Task
 import com.example.trektopia.core.model.operation.UpdateProgress
 import com.example.trektopia.core.model.enum.TaskType
 import com.example.trektopia.core.model.User
+import com.example.trektopia.core.model.operation.StreakHistory
 import com.example.trektopia.utils.DateHelper
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.CollectionReference
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
+import java.util.Calendar
 import kotlin.Exception
 import kotlin.NullPointerException
 
@@ -91,10 +93,16 @@ class FirestoreDataSource(
             val history = user.dailyStreak.history
 
             if(history!=null){
-                val updatedWeekly = history.toMutableList().add(Pair(false, Timestamp.now()))
+                val updatedWeekly = history.toMutableList().add(StreakHistory(
+                    Timestamp.now(),
+                    false
+                ))
                 transaction.update(userRef,"dailyStreak.weeklyHistory", updatedWeekly)
             } else {
-                val newWeekly = mutableListOf<Pair<Boolean,Timestamp>>().add(Pair(false, Timestamp.now()))
+                val newWeekly = mutableListOf<StreakHistory>().add(StreakHistory(
+                    Timestamp.now(),
+                    false
+                ))
                 transaction.update(userRef,"dailyStreak.weeklyHistory", newWeekly)
             }
 
@@ -187,7 +195,6 @@ class FirestoreDataSource(
                     trySend(ResultState.Error(e.message.toString()))
                     Log.e("FirestoreDataSource", "getLeaderboard: $e")
                 }
-                close()
             }
         awaitClose{ listener.remove() }
     }
@@ -235,7 +242,6 @@ class FirestoreDataSource(
                     trySend(ResultState.Error(e.message.toString()))
                     Log.e("FirestoreDataSource", "getUserActivities: $e")
                 }
-                close()
             }
         awaitClose{ listener.remove() }
     }
@@ -269,7 +275,7 @@ class FirestoreDataSource(
                 transaction = transaction,
                 userId = userId,
                 reward = reward
-            )
+             )
             updateProgressStatus(
                 transaction = transaction,
                 relationId = relationId,
@@ -318,9 +324,8 @@ class FirestoreDataSource(
             TaskType.MISSION -> MISSION_RELATIONS_REF
             TaskType.ACHIEVEMENT -> ACHIEVEMENT_RELATIONS_REF
         }
-
         val relationRef = relationCollectionReference.document(relationId)
-        transaction.update(relationRef, "progress.enabled", true)
+        transaction.update(relationRef, "progress.enabled", false)
     }
 
     fun addActivityAndUpdateProgress(
@@ -417,7 +422,10 @@ class FirestoreDataSource(
         }
 
         if(weeklyHistory!=null){
-            val updatedWeekly = weeklyHistory.toMutableList().add(Pair(true,activity.timeStamp))
+            val updatedWeekly = weeklyHistory.toMutableList().add(StreakHistory(
+                activity.timeStamp,
+                true
+            ))
             transaction.update(userRef,"dailyStreak.history", updatedWeekly)
         } else {
             val newWeekly = mutableListOf<Pair<Boolean,Timestamp>>().add(Pair(true,activity.timeStamp))
@@ -493,7 +501,6 @@ class FirestoreDataSource(
                     trySend(ResultState.Error(e.message.toString()))
                     Log.e("FirestoreDataSource", "getRelationData: $e")
                 }
-                close()
             }
         awaitClose { listener.remove() }
     }
@@ -517,7 +524,6 @@ class FirestoreDataSource(
                     trySend(ResultState.Error(e.message.toString()))
                     Log.e("FirestoreDataSource", "getTaskData: $e")
                 }
-                close()
             }
         awaitClose { listener.remove() }
     }
@@ -541,7 +547,6 @@ class FirestoreDataSource(
                     trySend(ResultState.Error(e.message.toString()))
                     Log.e("FirestoreDataSource", "getUserData: $e")
                 }
-                close()
             }
         awaitClose { listener.remove() }
     }
@@ -611,7 +616,7 @@ class FirestoreDataSource(
             userRef = userId,
             taskRef = taskId,
             progress = Progress(),
-            activeDate = Timestamp.now(),
+            activeDate = null,
         )
         val randomRef = ACHIEVEMENT_RELATIONS_REF.document().id
         batch.set(ACHIEVEMENT_RELATIONS_REF.document(randomRef), relation)
@@ -621,13 +626,22 @@ class FirestoreDataSource(
         batch: WriteBatch,
         userId: String,
         taskId: String,
-    ){
+    ) {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+
+        val endOfDayTimestamp = Timestamp(calendar.time)
+
         val relation = Relation(
             userRef = userId,
             taskRef = taskId,
             progress = Progress(),
-            activeDate = Timestamp.now(),
+            activeDate = endOfDayTimestamp,
         )
+
         val randomRef = MISSION_RELATIONS_REF.document().id
         batch.set(MISSION_RELATIONS_REF.document(randomRef), relation)
     }
