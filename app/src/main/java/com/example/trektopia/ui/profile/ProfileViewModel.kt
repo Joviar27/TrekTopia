@@ -9,10 +9,7 @@ import com.example.trektopia.core.model.enum.TaskType
 import com.example.trektopia.core.repository.AuthRepository
 import com.example.trektopia.core.repository.GameRepository
 import com.example.trektopia.core.repository.Repository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
@@ -42,6 +39,4 @@ class ProfileViewModel(
 
     fun claimTaskReward(relationId:String, reward: Int) =
         gameRepository.claimTaskReward(uid, relationId, reward, TaskType.ACHIEVEMENT).asLiveData()
-
-    fun logout() = authRepository.logout()
 }
