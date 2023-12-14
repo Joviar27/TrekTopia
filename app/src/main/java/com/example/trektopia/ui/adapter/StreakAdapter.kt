@@ -3,25 +3,24 @@ package com.example.trektopia.ui.adapter
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.trektopia.R
+import com.example.trektopia.core.model.operation.StreakHistory
 import com.example.trektopia.databinding.ItemStreakBinding
 import com.example.trektopia.utils.DateHelper
-import com.google.firebase.Timestamp
 
-class StreakAdapter : ListAdapter<Pair<Boolean,Timestamp>, StreakAdapter.ItemViewHolder>(DIFF_CALLBACK){
+class StreakAdapter : ListAdapter<StreakHistory, StreakAdapter.ItemViewHolder>(DIFF_CALLBACK){
 
     inner class ItemViewHolder(private var binding: ItemStreakBinding) : RecyclerView.ViewHolder (binding.root){
-        fun bind(history: Pair<Boolean,Timestamp>){
-            val date = DateHelper.timeStampToLocalDate(history.second)
+        fun bind(history: StreakHistory){
+            val date = DateHelper.timeStampToLocalDate(history.date)
             binding.apply {
                 tvStreakDate.text = DateHelper.formatDateMonth(date)
                 tvStreakDay.text = DateHelper.formatDayOfWeek(date).substring(0,2)
 
-                val indicator = if(history.first) R.drawable.bg_streak_tertiary_8
+                val indicator = if(history.active) R.drawable.bg_streak_tertiary_8
                 else R.drawable.bg_streak_outlined_8
 
                 tvStreakDay.setBackgroundResource(indicator)
@@ -42,14 +41,14 @@ class StreakAdapter : ListAdapter<Pair<Boolean,Timestamp>, StreakAdapter.ItemVie
     }
 
     companion object {
-        val DIFF_CALLBACK: DiffUtil.ItemCallback<Pair<Boolean,Timestamp>> =
-            object : DiffUtil.ItemCallback<Pair<Boolean,Timestamp>>() {
-                override fun areItemsTheSame(oldItem: Pair<Boolean,Timestamp>, newItem: Pair<Boolean,Timestamp>): Boolean {
-                    return oldItem.second == newItem.second
+        val DIFF_CALLBACK: DiffUtil.ItemCallback<StreakHistory> =
+            object : DiffUtil.ItemCallback<StreakHistory>() {
+                override fun areItemsTheSame(oldItem: StreakHistory, newItem: StreakHistory): Boolean {
+                    return oldItem.date == newItem.date
                 }
 
                 @SuppressLint("DiffUtilEquals")
-                override fun areContentsTheSame(oldItem: Pair<Boolean,Timestamp>, newItem: Pair<Boolean,Timestamp>): Boolean {
+                override fun areContentsTheSame(oldItem: StreakHistory, newItem: StreakHistory): Boolean {
                     return oldItem == newItem
                 }
             }
