@@ -37,14 +37,18 @@
     <string name="progress">%.1f/%.1f</string>
     <string name="daily_missions">Daily Missions</string>
     <string name="point">%s Point</string>
+    <string name="countdown">%d Hours</string>
+    <string name="greeting">Hello! %s</string>
     <!--  Streak  -->
     <string name="current_streak">Total : %s Days</string>
     <string name="longest_streak">Your record : %s Days</string>
 
     <!-- History Page  -->
     <string name="steps">Steps</string>
+    <string name="step_count">%sK</string>
     <string name="km">Km</string>
     <string name="km_h">Km/h</string>
+    <string name="empty_activity">No Activity yet\n Stay fit by walking everyday!</string>
 
     <!-- Record Page -->
     <string name="live_steps">Steps (X100)</string>
@@ -64,6 +68,7 @@
     <string name="achievements">Achievements</string>
     <string name="chooser">Choose Image</string>
     <string name="gallery_failed">Failed to open gallery</string>
+    <string name="gallery_not_permitted">Permission for gallery not granted</string>
 
     <!-- Dialog   -->
     <string name="dialog_loading_login">Logging in\nPlease wait…</string>
