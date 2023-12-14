@@ -6,12 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_marginTop="?attr/actionBarSize"
     tools:context=".ui.history.HistoryDetailFragment">
 
     <ImageView
         android:id="@+id/iv_detail_route"
         android:layout_width="match_parent"
-        android:layout_height="460dp"
+        android:layout_height="430dp"
         android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
