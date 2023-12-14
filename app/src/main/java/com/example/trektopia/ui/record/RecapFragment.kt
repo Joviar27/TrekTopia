@@ -16,7 +16,7 @@ import com.example.trektopia.core.model.Activity
 import com.example.trektopia.databinding.FragmentRecapBinding
 import com.example.trektopia.ui.dialog.StatusDialog
 import com.example.trektopia.utils.DateHelper
-import com.example.trektopia.utils.getStaticMapUri
+import com.example.trektopia.utils.completeStaticMapUri
 import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.utils.safeNavigate
 
@@ -51,7 +51,7 @@ class RecapFragment : Fragment() {
         binding?.apply {
             //TODO: Create task map route placeholder
             Glide.with(requireActivity())
-                .load(activity.route.getStaticMapUri(requireContext()))
+                .load(activity.route.completeStaticMapUri(requireContext()))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ivRecapRoute)
 
