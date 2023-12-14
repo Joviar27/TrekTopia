@@ -9,10 +9,9 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.trektopia.R
 import com.example.trektopia.core.model.Activity
-import com.example.trektopia.databinding.FragmentHistoryBinding
 import com.example.trektopia.databinding.FragmentHistoryDetailBinding
 import com.example.trektopia.utils.DateHelper
-import com.example.trektopia.utils.getStaticMapUri
+import com.example.trektopia.utils.completeStaticMapUri
 
 class HistoryDetailFragment : Fragment() {
     private var _binding: FragmentHistoryDetailBinding? = null
@@ -37,7 +36,7 @@ class HistoryDetailFragment : Fragment() {
         binding?.apply {
             //TODO: Create task map route placeholder
             Glide.with(requireActivity())
-                .load(activity.route.getStaticMapUri(requireContext()))
+                .load(activity.route.completeStaticMapUri(requireContext()))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(ivDetailRoute)
 
@@ -67,7 +66,8 @@ class HistoryDetailFragment : Fragment() {
             detailSpeed.tvLiveInfo.text = activity.speed.toString()
             detailSpeed.tvLiveType.text = resources.getString(R.string.km_h)
 
-            detailSteps.tvLiveInfo.text = activity.stepCount.toString()
+            detailSteps.tvLiveInfo.text =
+                activity.stepCount.toDouble().div(100.0).toString()
             detailSteps.tvLiveType.text = resources.getString(R.string.live_steps)
 
         }
