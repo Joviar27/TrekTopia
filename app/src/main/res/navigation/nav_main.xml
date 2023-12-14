@@ -52,7 +52,9 @@
         tools:layout="@layout/fragment_history" >
         <action
             android:id="@+id/action_historyFragment_to_historyDetailFragment"
-            app:destination="@id/historyDetailFragment" />
+            app:destination="@id/historyDetailFragment"
+            app:popUpTo="@id/historyDetailFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/historyDetailFragment"
@@ -70,7 +72,9 @@
         tools:layout="@layout/fragment_record" >
         <action
             android:id="@+id/action_recordFragment_to_recapFragment"
-            app:destination="@id/recapFragment" />
+            app:destination="@id/recapFragment"
+            app:popUpTo="@id/recordFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/recapFragment"
@@ -88,7 +92,7 @@
             app:destination="@id/historyFragment" />
     </fragment>
     <fragment
-        android:id="@+id/leaderboardFragment"
+        android:id="@+id/rankFragment"
         android:name="com.example.trektopia.ui.leaderboard.LeaderboardFragment"
         android:label="fragment_leaderboard"
         tools:layout="@layout/fragment_leaderboard" />
@@ -104,6 +108,8 @@
         tools:layout="@layout/fragment_profile">
         <action
             android:id="@+id/action_profileFragment_to_fullAchievementsFragment"
-            app:destination="@id/fullAchievementsFragment" />
+            app:destination="@id/fullAchievementsFragment"
+            app:popUpTo="@id/fullAchievementsFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>
