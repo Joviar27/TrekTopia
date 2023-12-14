@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.trektopia.core.model.User
 import com.example.trektopia.databinding.ItemUserBinding
+import com.example.trektopia.utils.createCustomDrawable
 
 class UserAdapter : ListAdapter<Pair<Int,User>, UserAdapter.ItemViewHolder>(DIFF_CALLBACK) {
 
@@ -18,12 +19,17 @@ class UserAdapter : ListAdapter<Pair<Int,User>, UserAdapter.ItemViewHolder>(DIFF
         fun bind(user: Pair<Int,User>) {
 
             binding.apply {
-                //TODO: Create task map route placeholder
-                Glide.with(itemView.context)
-                    .load(user.second.pictureUri)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(ivUserPic)
-
+                if(user.second.pictureUri==null){
+                    val custom = user.second.username[0]
+                        .uppercaseChar()
+                        .createCustomDrawable(itemView.context)
+                    binding.ivUserPic.setImageDrawable(custom)
+                } else{
+                    Glide.with(itemView.context)
+                        .load(user.second.pictureUri)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(ivUserPic)
+                }
                 tvUserRank.text = user.first.toString()
                 tvUserName.text = user.second.username
                 tvUserPoint.text = user.second.point.toString()
