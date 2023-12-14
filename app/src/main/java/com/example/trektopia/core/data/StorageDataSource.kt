@@ -21,8 +21,13 @@ class StorageDataSource(
         return newUri
     }
 
-    suspend fun getProfile(userId: String) : Uri =
-        storage.child(userId).downloadUrl.await()
+    suspend fun getProfile(userId: String): Uri? {
+        return try {
+            storage.child(userId).downloadUrl.await()
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     fun uploadProfile(userId: String, uri: Uri) =
         storage.child(userId).putFile(uri)
