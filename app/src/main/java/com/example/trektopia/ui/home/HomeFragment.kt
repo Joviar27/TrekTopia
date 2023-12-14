@@ -21,6 +21,7 @@ import com.example.trektopia.ui.adapter.StreakAdapter
 import com.example.trektopia.ui.adapter.TaskAdapter
 import com.example.trektopia.ui.dialog.StatusDialog
 import com.example.trektopia.utils.DateHelper
+import com.example.trektopia.utils.createCustomDrawable
 import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.utils.showToast
 import com.google.firebase.Timestamp
@@ -64,13 +65,20 @@ class HomeFragment : Fragment() {
 
     private fun setupUserView(user: User){
         binding?.apply {
-            Glide.with(requireActivity())
-                .load(user.pictureUri)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(R.color.secondary)
-                .into(binding!!.ivUserPic)
+            if(user.pictureUri==null){
+                val custom = user.username[0]
+                    .uppercaseChar()
+                    .createCustomDrawable(requireContext())
+                ivUserPic.setImageDrawable(custom)
+            } else{
+                Glide.with(requireActivity())
+                    .load(user.pictureUri)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.color.secondary)
+                    .into(ivUserPic)
+            }
 
-            tvUserName.text = user.username
+            tvUserName.text = resources.getString(R.string.greeting, user.username)
             tvUserPoint.text = resources.getString(R.string.point, user.point.toString())
             layoutStreak.tvUserStreakCount.text = resources.getString(
                 R.string.current_streak,
@@ -172,7 +180,10 @@ class HomeFragment : Fragment() {
             missionActiveTimestamp
         )
         binding?.tvTaskCountdown?.text =
-            missionHourCountdown(missionActiveDate).toString()
+            resources.getString(
+                R.string.countdown,
+                missionHourCountdown(missionActiveDate)
+            )
     }
 
     private fun missionHourCountdown(missionActiveDate: LocalDate): Int {
