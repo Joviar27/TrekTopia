@@ -11,7 +11,7 @@
 
     <TextView
         android:id="@+id/tv_streak_day"
-        android:layout_width="45dp"
+        android:layout_width="52dp"
         android:layout_height="wrap_content"
         android:paddingVertical="12dp"
         android:paddingHorizontal="4dp"
@@ -19,7 +19,7 @@
         android:textAppearance="@style/HeadlineMedium.Black.White"
         android:background="@drawable/bg_streak_tertiary_8"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="Su" />
+        tools:text="We" />
 
     <TextView
         android:id="@+id/tv_streak_date"
