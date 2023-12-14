@@ -30,7 +30,7 @@ class ViewModelFactory (
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(repository,gameRepository,authRepository) as T
             modelClass.isAssignableFrom(HistoryViewModel::class.java) -> HistoryViewModel(repository,authRepository) as T
             modelClass.isAssignableFrom(RecordViewModel::class.java) -> RecordViewModel(repository,authRepository) as T
-            modelClass.isAssignableFrom(LeaderboardViewModel::class.java) -> RecordViewModel(repository,authRepository) as T
+            modelClass.isAssignableFrom(LeaderboardViewModel::class.java) -> LeaderboardViewModel(gameRepository,repository,authRepository) as T
             modelClass.isAssignableFrom(ProfileViewModel::class.java) -> ProfileViewModel(repository,gameRepository,authRepository) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
