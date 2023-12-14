@@ -24,6 +24,7 @@ import com.example.trektopia.R
 import com.example.trektopia.core.model.Activity
 import com.example.trektopia.ui.record.RecordFragment
 import com.example.trektopia.utils.LatLngWrapper
+import com.example.trektopia.utils.getStaticMapUri
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.Priority
@@ -282,7 +283,7 @@ class RecordService : Service(), SensorEventListener {
             stepCount = stepCount,
             distance = totalDistance,
             speed = averageSpeed,
-            route = allLatLng
+            route = allLatLng.getStaticMapUri()
         )
 
         val intent = Intent(FINAL_RESULT_ACTION)
