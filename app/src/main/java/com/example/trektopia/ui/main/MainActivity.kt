@@ -5,35 +5,25 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.view.marginTop
-import androidx.fragment.app.FragmentContainer
-import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.trektopia.R
-import com.example.trektopia.core.AuthState
 import com.example.trektopia.utils.obtainViewModel
-import com.example.trektopia.utils.safeNavigate
 import com.example.trektopia.databinding.ActivityMainBinding
 import com.example.trektopia.ui.record.RecordFragment
 import com.example.trektopia.utils.showToast
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private var _viewModel: AuthViewModel? = null
+    private lateinit var viewModel: AuthViewModel
 
     private lateinit var navController:NavController
 
@@ -45,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.bottomAppBar)
 
-        _viewModel = this.obtainViewModel()
+        viewModel = this.obtainViewModel()
 
         setupNavigation()
     }
@@ -71,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        setBottomNavigation(navController)
+        setupToolbarAndBottomBar()
 
         handleRecordButton()
     }
@@ -127,24 +117,52 @@ class MainActivity : AppCompatActivity() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun setBottomNavigation(navController: NavController) {
-        navController.addOnDestinationChangedListener { controller, destination, _ ->
+    private fun setupToolbarAndBottomBar() {
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
             binding.bottomAppBar.visibility =
-                if(listFragmentBottomBar.contains(destination.id))View.VISIBLE else View.GONE
+                if (listFragmentBottomBar.contains(destination.id)) View.VISIBLE else View.GONE
             binding.fabRecord.visibility =
-                if(listFragmentBottomBar.contains(destination.id))View.VISIBLE else View.GONE
+                if (listFragmentBottomBar.contains(destination.id)) View.VISIBLE else View.GONE
 
             binding.materialToolbar.apply {
+                if(destination.id == R.id.profileFragment){
+                    menu.clear()
+                    inflateMenu(R.menu.menu_profile)
+                    setOnMenuItemClickListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.logout -> {
+                                viewModel.logout()
+                                navController.navigate(R.id.loginFragment)
+                                true
+                            }
+                            else -> false
+                        }
+                    }
+                } else{
+                    menu.clear()
+                }
+
                 visibility =
                     if (listFragmentTopBar.contains(destination.id)) View.VISIBLE
                     else View.GONE
                 title = destination.label
-                if(listFragmentTopBarWithBackNavigation.contains(destination.id)){
-                    navigationIcon =ContextCompat.getDrawable(context,R.drawable.ic_arrow_back_24)
+                isTitleCentered = true
+
+                if (listFragmentTopBarWithBackNavigation.contains(destination.id)) {
+                    navigationIcon = ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_24)
                     setNavigationOnClickListener {
                         controller.navigateUp()
                     }
+                } else {
+                    navigationIcon = null
+                    setNavigationOnClickListener(null)
                 }
+            }
+
+            if(listFragmentNoSystemBar.contains(destination.id)){
+                window.statusBarColor = ContextCompat.getColor(this, R.color.white)
+            } else{
+                window.statusBarColor = ContextCompat.getColor(this, R.color.secondary_container)
             }
         }
     }
@@ -173,6 +191,13 @@ class MainActivity : AppCompatActivity() {
                 R.id.historyDetailFragment,
                 R.id.recordFragment,
                 R.id.fullAchievementsFragment
+            )
+
+        val listFragmentNoSystemBar =
+            listOf(
+                R.id.splashFragment,
+                R.id.loginFragment,
+                R.id.registerFragment
             )
     }
 }
