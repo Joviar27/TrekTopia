@@ -9,7 +9,6 @@ import com.example.trektopia.core.model.Activity
 import com.example.trektopia.core.model.User
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 
 class Repository(
     private val firestore: FirestoreDataSource,
@@ -48,15 +47,17 @@ class Repository(
             val oldUri = getProfile(userId)
             val newUri = getDownloadUrl(userId, imageUri)
 
-            updatePictureUri(userId, newUri).map { result ->
+            updatePictureUri(userId, newUri).collect{ result ->
                 when(result){
-                    is ResultState.Error -> uploadProfile(userId, oldUri)
+                    is ResultState.Error -> {
+                        if(oldUri!=null) uploadProfile(userId, oldUri)
+                    }
                     else -> emit(result)
                 }
             }
         } catch (e: Exception){
             emit(ResultState.Error(e.message.toString()))
-            Log.e("FirestoreDataSource", "updateProfilePicture: $e")
+            Log.e("Repository", "updateProfilePicture: $e")
         }
     }
 }
