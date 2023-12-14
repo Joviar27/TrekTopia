@@ -62,6 +62,7 @@ class HistoryFragment : Fragment() {
                 is ResultState.Loading -> loading(true)
                 is ResultState.Success ->{
                     loading(false)
+                    if(result.data.isEmpty()) binding?.tvActivityEmpty?.visibility = View.VISIBLE
                     activityAdapter.submitList(result.data)
                 }
                 is ResultState.Error ->{
