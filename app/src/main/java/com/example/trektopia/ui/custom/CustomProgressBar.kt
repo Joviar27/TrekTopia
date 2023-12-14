@@ -27,14 +27,14 @@ class CustomProgressBar : RelativeLayout {
 
     private fun init() {
         inflate(context, R.layout.custom_task_progress, this)
-        progressBackground = findViewById(R.id.task_percentage)
+        progressBackground = findViewById(R.id.custom_task_progress)
         progressBar = findViewById(R.id.task_percentage)
         progressText = findViewById(R.id.tv_task_progress)
     }
 
     fun setProgress(percentage: Double, current: Double, required: Double) {
         val layoutParams = progressBar.layoutParams as LayoutParams
-        val fullWidth = progressBackground.width
+        val fullWidth = progressBackground.layoutParams.width
         layoutParams.width = (fullWidth * percentage / 100.0).toInt()
         progressBar.layoutParams = layoutParams
 
