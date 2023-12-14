@@ -11,7 +11,6 @@ import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import androidx.fragment.app.Fragment
-
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
@@ -38,7 +37,6 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.maps.CameraUpdateFactory
-
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -46,13 +44,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
-import com.google.firebase.Timestamp
 import java.lang.Exception
 import java.lang.NullPointerException
-import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.util.Locale
-import java.util.Random
 
 class RecordFragment : Fragment(), OnMapReadyCallback{
 
@@ -144,6 +137,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.uiSettings.isZoomControlsEnabled = true
 
         handleServiceAction(RecordService.ACTION_SETUP_LOCATION_REQUEST)
         handleServiceAction(RecordService.ACTION_SETUP_LOCATION_CALLBACK)
@@ -195,7 +189,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
         if(checkPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
             && checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
         ){
-            fusedLocationClient.lastLocation.addOnSuccessListener { location : Location ->
+            fusedLocationClient.lastLocation.addOnSuccessListener { location : Location? ->
                 if(location!=null) showMarker(location)
                 else "Location is not found. Try Again".showToast(requireContext())
             }
