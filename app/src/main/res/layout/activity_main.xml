@@ -12,9 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorSecondaryContainer"
-        app:layout_constraintTop_toTopOf="parent"
         app:navigationIconTint="?attr/colorOnSecondaryContainer"
-        app:titleTextColor="?attr/colorOnSecondaryContainer"/>
+        app:titleTextAppearance="@style/TitleLarge.OnSecondaryContainer"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_record"
@@ -30,7 +29,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:defaultNavHost="true"
-        app:navGraph="@navigation/nav_main"/>
+        app:navGraph="@navigation/nav_main" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar"
