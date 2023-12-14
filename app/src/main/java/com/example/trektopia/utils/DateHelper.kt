@@ -1,14 +1,11 @@
 package com.example.trektopia.utils
 
 import com.google.firebase.Timestamp
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.Date
 import java.util.Locale
 
 object DateHelper{
@@ -27,7 +24,7 @@ object DateHelper{
     }
 
     fun formatDateMonth(localDate: LocalDate): String {
-        val formatter = DateTimeFormatter.ofPattern("dd MMMM", Locale.ENGLISH)
+        val formatter = DateTimeFormatter.ofPattern("dd/MM", Locale.ENGLISH)
         return localDate.format(formatter)
     }
 
@@ -46,15 +43,14 @@ object DateHelper{
 
         val hours = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
+        val seconds = totalSeconds % 60
 
         val formattedString = StringBuilder()
 
-        if (hours > 0) {
-            formattedString.append("$hours ${if (hours == 1L) "Hour" else "Hours"} ")
-        }
-
-        if (minutes > 0) {
-            formattedString.append("$minutes ${if (minutes == 1L) "Minute" else "Minutes"}")
+        when {
+            hours > 0 -> formattedString.append("$hours ${if (hours == 1L) "Hour" else "Hours"} ")
+            minutes > 0 -> formattedString.append("$minutes ${if (minutes == 1L) "Minute" else "Minutes"}")
+            else -> formattedString.append("$seconds ${if (seconds == 1L) "Second" else "Seconds"}")
         }
 
         return formattedString.toString().trim()
