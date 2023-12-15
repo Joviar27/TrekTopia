@@ -1,5 +1,6 @@
 package com.example.trektopia.ui.record
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -12,7 +13,6 @@ import android.location.Location
 import android.os.Build
 import androidx.fragment.app.Fragment
 import android.os.Bundle
-import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -21,13 +21,14 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.navigation.fragment.findNavController
 import com.example.trektopia.R
 import com.example.trektopia.core.model.Activity
 import com.example.trektopia.databinding.FragmentRecordBinding
 import com.example.trektopia.service.RecordService
-import com.example.trektopia.ui.history.HistoryFragmentDirections
 import com.example.trektopia.utils.LatLngWrapper
+import com.example.trektopia.utils.getParcelableExtra
 import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.utils.safeNavigate
 import com.example.trektopia.utils.showToast
@@ -36,6 +37,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -45,7 +47,7 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import java.lang.Exception
-import java.lang.NullPointerException
+import java.util.concurrent.TimeUnit
 
 class RecordFragment : Fragment(), OnMapReadyCallback{
 
@@ -61,24 +63,22 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
     private var allLatLng = ArrayList<LatLng>()
     private var boundsBuilder  = LatLngBounds.builder()
 
+    private lateinit var localBroadcastManager: LocalBroadcastManager
+
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 RecordService.LIVE_COUNT_ACTION -> {
-                    val liveCount = intent.getIntExtra(RecordService.EXTRA_LIVE_COUNT, 0)
+                    val liveCount = intent.getDoubleExtra(RecordService.EXTRA_LIVE_COUNT, 0.0)
                     binding?.apply {
-                        liveSteps.tvLiveInfo.text = liveCount.toString()
+                        liveSteps.tvLiveInfo.text = String.format("%.1f", liveCount)
                         liveSteps.tvLiveType.text = resources.getString(R.string.live_steps)
                     }
                 }
                 RecordService.FINAL_RESULT_ACTION -> {
                     handleFinalResult(intent)
                     clearMaps()
-
                     //TODO: Stop service to prevent memory leak
-                }
-                RecordService.CHECK_LOCATION_SETTING_ACTION ->{
-                    handleCheckLocationSettingAction(intent)
                 }
                 RecordService.COORDINATE_ACTION -> {
                     handleCoordinateAction(intent)
@@ -89,6 +89,29 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             }
         }
     }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
+            val fineLocationPermission =
+                permission[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+            val coarseLocationPermission =
+                permission[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+            val isPermissionGranted =
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                    val activityRecognitionPermission =
+                        permission[Manifest.permission.ACTIVITY_RECOGNITION] ?: false
+
+                    fineLocationPermission && activityRecognitionPermission ||
+                            coarseLocationPermission && activityRecognitionPermission
+                } else {
+                    fineLocationPermission || coarseLocationPermission
+                }
+
+            if (isPermissionGranted) getMyLastLocation()
+            else "Permission request denied".showToast(requireContext())
+        }
+
 
     private val resolutionLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
@@ -106,6 +129,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = this.obtainViewModel()
+        localBroadcastManager = LocalBroadcastManager.getInstance(requireContext())
     }
 
     override fun onResume() {
@@ -117,7 +141,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             addAction(RecordService.COORDINATE_ACTION)
             addAction(RecordService.LIVE_TIMER_ACTION)
         }
-        requireContext().registerReceiver(broadcastReceiver, filter)
+        localBroadcastManager.registerReceiver(broadcastReceiver, filter)
     }
 
     override fun onCreateView(
@@ -133,14 +157,16 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         mMap.uiSettings.isZoomControlsEnabled = true
 
-        handleServiceAction(RecordService.ACTION_SETUP_LOCATION_REQUEST)
-        handleServiceAction(RecordService.ACTION_SETUP_LOCATION_CALLBACK)
+        createLocationRequest()
         setupActionView()
     }
 
@@ -150,6 +176,13 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
                 btnPauseRecord.visibility = View.VISIBLE
                 btnStopRecord.visibility = View.VISIBLE
                 btnStartRecord.visibility = View.GONE
+
+                val createCallback = Intent(requireContext(), RecordService::class.java).apply {
+                    action = RecordService.ACTION_SETUP_LOCATION_CALLBACK
+                    putExtra(RecordService.EXTRA_LOCATION_REQUEST, locationRequest)
+                }
+                requireContext().startService(createCallback)
+
                 handleServiceAction(RecordService.ACTION_START_RECORDING)
             }
             btnPauseRecord.setOnClickListener {
@@ -161,7 +194,6 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             }
             btnStopRecord.setOnClickListener {
                 handleServiceAction(RecordService.ACTION_STOP_RECORDING)
-                requireActivity().unregisterReceiver(broadcastReceiver)
             }
             btnResumeRecord.setOnClickListener {
                 btnPauseRecord.visibility = View.VISIBLE
@@ -170,6 +202,13 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
                 btnStopRecordSmall.visibility = View.GONE
                 handleServiceAction(RecordService.ACTION_RESUME_RECORDING)
             }
+            btnStopRecordSmall.setOnClickListener{
+                handleServiceAction(RecordService.ACTION_STOP_RECORDING)
+            }
+
+            liveSteps.tvLiveType.text = resources.getString(R.string.live_steps)
+            liveDistance.tvLiveType.text = resources.getString(R.string.km)
+            liveSpeed.tvLiveType.text = resources.getString(R.string.km_h)
         }
     }
 
@@ -185,9 +224,35 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
         boundsBuilder = LatLngBounds.builder()
     }
 
+    private fun createLocationRequest(){
+        val interval = TimeUnit.SECONDS.toMillis(1)
+        val priority = Priority.PRIORITY_HIGH_ACCURACY
+        locationRequest = LocationRequest.Builder(priority, interval).build()
+
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val client = LocationServices.getSettingsClient(requireActivity())
+        client.checkLocationSettings(builder.build())
+            .addOnSuccessListener {
+                getMyLastLocation()
+            }
+            .addOnFailureListener {
+                handleLocationSettingsFailure(it)
+            }
+    }
+
+    private fun handleLocationSettingsFailure(exception: Exception) {
+        if (exception is ResolvableApiException) {
+            try {
+                resolutionLauncher.launch(IntentSenderRequest.Builder(exception.resolution).build())
+            } catch (sendEx: IntentSender.SendIntentException) {
+                sendEx.message?.showToast(requireContext())
+            }
+        }
+    }
+
     private fun getMyLastLocation() {
-        if(checkPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
-            && checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+        if(checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+            && checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
         ){
             fusedLocationClient.lastLocation.addOnSuccessListener { location : Location? ->
                 if(location!=null) showMarker(location)
@@ -219,43 +284,13 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
-            val fineLocationPermission =
-                permission[android.Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-            val coarseLocationPermission =
-                permission[android.Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
-
-            val isPermissionGranted =
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                    val activityRecognitionPermission =
-                        permission[android.Manifest.permission.ACTIVITY_RECOGNITION] ?: false
-
-                    fineLocationPermission && activityRecognitionPermission ||
-                            coarseLocationPermission && activityRecognitionPermission
-                } else {
-                    fineLocationPermission || coarseLocationPermission
-                }
-
-            if (isPermissionGranted) getMyLastLocation()
-            else "Permission request denied".showToast(requireContext())
-        }
-
-    private inline fun <reified T : Parcelable> getParcelableExtra(intent: Intent, extraKey: String): T {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(extraKey, T::class.java)
-        } else {
-            @Suppress("Deprecation")
-            intent.getParcelableExtra(extraKey)
-        } ?: throw NullPointerException("$extraKey parcelable is null")
-    }
-
     fun handleFinalResult(intent: Intent){
         val finalActivity = getParcelableExtra<Activity>(intent, RecordService.EXTRA_FINAL_ACTIVITY)
+        localBroadcastManager.unregisterReceiver(broadcastReceiver)
 
-        val toRecap = HistoryFragmentDirections.actionHistoryFragmentToHistoryDetailFragment(finalActivity)
+        val toRecap = RecordFragmentDirections.actionRecordFragmentToRecapFragment(finalActivity)
         toRecap.activity = finalActivity
-        view?.findNavController()?.safeNavigate(toRecap)
+        findNavController().safeNavigate(toRecap)
     }
 
     fun handleTimer(intent: Intent){
@@ -266,34 +301,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
         val minutes = (seconds % 3600) / 60
         val remainingSeconds = seconds % 60
 
-        binding?.tvTimer?.text =  String.format("%d:%02d:%02d", hours, minutes, remainingSeconds)
-    }
-
-    private fun handleCheckLocationSettingAction(intent: Intent) {
-        try {
-            locationRequest = getParcelableExtra(intent, RecordService.EXTRA_LOCATION_REQUEST)
-            val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
-            val client = LocationServices.getSettingsClient(requireActivity())
-            client.checkLocationSettings(builder.build())
-                .addOnSuccessListener {
-                    getMyLastLocation()
-                }
-                .addOnFailureListener {
-                    handleLocationSettingsFailure(it)
-                }
-        } catch (e: Exception) {
-            handleException(e)
-        }
-    }
-
-    private fun handleLocationSettingsFailure(exception: Exception) {
-        if (exception is ResolvableApiException) {
-            try {
-                resolutionLauncher.launch(IntentSenderRequest.Builder(exception.resolution).build())
-            } catch (sendEx: IntentSender.SendIntentException) {
-                sendEx.message?.showToast(requireContext())
-            }
-        }
+        binding?.tvTimer?.text =  String.format("%02d : %02d : %02d", hours, minutes, remainingSeconds)
     }
 
     fun handleCoordinateAction(intent: Intent) {
@@ -302,7 +310,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             val currentSpeed = intent.getDoubleExtra(RecordService.EXTRA_LATEST_SPEED, 0.0)
             val totalDistance = intent.getDoubleExtra(RecordService.EXTRA_TOTAL_DISTANCE, 0.0)
 
-            allLatLng.addAll(latLngWrapper.latLngList)
+            allLatLng = latLngWrapper.latLngList
 
             mMap.addPolyline(
                 PolylineOptions()
@@ -311,12 +319,12 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
                     .addAll(allLatLng)
             )
             val bounds = getParcelableExtra<LatLngBounds>(intent, RecordService.EXTRA_LATEST_BOUND)
-            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 64))
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 80))
 
-            binding?.liveDistance?.tvLiveInfo?.text = totalDistance.toString()
+            binding?.liveDistance?.tvLiveInfo?.text = String.format("%.1f", totalDistance)
             binding?.liveDistance?.tvLiveType?.text = resources.getString(R.string.km)
 
-            binding?.liveSpeed?.tvLiveInfo?.text = currentSpeed.toString()
+            binding?.liveSpeed?.tvLiveInfo?.text = String.format("%.1f", currentSpeed)
             binding?.liveSpeed?.tvLiveType?.text = resources.getString(R.string.km_h)
         } catch (e: Exception) {
             handleException(e)
@@ -329,12 +337,18 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
     }
 
     companion object{
-        val REQUIRED_PERMISSIONS =
+        val REQUIRED_PERMISSIONS = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             arrayOf(
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACTIVITY_RECOGNITION
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACTIVITY_RECOGNITION
             )
+        } else {
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        }
     }
 
 }
