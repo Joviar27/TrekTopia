@@ -38,8 +38,8 @@ object DateHelper{
         return localDate.format(formatter)
     }
 
-    fun formatElapsedTime(elapsedTimeMillis: Double): String {
-        val totalSeconds = (elapsedTimeMillis / 1000).toLong()
+    fun formatElapsedTime(elapsedTimeMillis: Long): String {
+        val totalSeconds = (elapsedTimeMillis / 1000)
 
         val hours = totalSeconds / 3600
         val minutes = (totalSeconds % 3600) / 60
@@ -59,5 +59,11 @@ object DateHelper{
     fun formatTime(localDateTime: LocalDateTime): String {
         val formatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
         return formatter.format(localDateTime)
+    }
+
+    fun isTimestampInCurrentDay(timestamp: Timestamp): Boolean {
+        val localDate = timeStampToLocalDate(timestamp)
+        val currentDate = LocalDate.now()
+        return localDate.isEqual(currentDate)
     }
 }
