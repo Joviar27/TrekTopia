@@ -34,7 +34,6 @@ class HistoryDetailFragment : Fragment() {
 
     private fun setupView(activity: Activity){
         binding?.apply {
-            //TODO: Create task map route placeholder
             Glide.with(requireActivity())
                 .load(activity.route.completeStaticMapUri(requireContext()))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -58,16 +57,15 @@ class HistoryDetailFragment : Fragment() {
                 )
             )
 
-            detailDistance.tvLiveInfo.text = activity.distance.toString()
+            detailDistance.tvLiveInfo.text = String.format("%.1f", activity.distance)
             detailDistance.tvLiveType.text = resources.getString(R.string.km)
 
             tvDetailDuration.text = DateHelper.formatElapsedTime(activity.duration)
 
-            detailSpeed.tvLiveInfo.text = activity.speed.toString()
+            detailSpeed.tvLiveInfo.text = String.format("%.1f", activity.speed)
             detailSpeed.tvLiveType.text = resources.getString(R.string.km_h)
 
-            detailSteps.tvLiveInfo.text =
-                activity.stepCount.toDouble().div(100.0).toString()
+            detailSteps.tvLiveInfo.text = String.format("%.1f", activity.stepCount.div(100.0))
             detailSteps.tvLiveType.text = resources.getString(R.string.live_steps)
 
         }
