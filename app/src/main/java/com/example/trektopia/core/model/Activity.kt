@@ -8,7 +8,7 @@ import kotlinx.parcelize.Parcelize
 data class Activity(
     val id: String = "",
     val timeStamp: Timestamp = Timestamp.now(),
-    val duration: Double = 0.0,
+    val duration: Long = 0L,
     val startTime: Timestamp = Timestamp.now(),
     val stepCount: Int = 0,
     val distance: Double = 0.0,
