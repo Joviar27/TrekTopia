@@ -1,5 +1,6 @@
 package com.example.trektopia.ui.main
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,25 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var navController:NavController
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
+            val fineLocationPermission = permission[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+            val coarseLocationPermission = permission[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+            val isPermissionGranted =
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                    val activityRecognitionPermission =
+                        permission[Manifest.permission.ACTIVITY_RECOGNITION] ?: false
+                    fineLocationPermission && activityRecognitionPermission ||
+                            coarseLocationPermission && activityRecognitionPermission
+                } else {
+                    fineLocationPermission || coarseLocationPermission
+                }
+
+            if (isPermissionGranted) navController.navigate(R.id.recordFragment)
+            else "Permission request denied".showToast(this)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -39,7 +59,6 @@ class MainActivity : AppCompatActivity() {
 
         setupNavigation()
     }
-
 
     private fun setupNavigation(){
         /*val navView : BottomNavigationView = binding.bottomNavView
@@ -68,47 +87,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleRecordButton() {
         binding.fabRecord.setOnClickListener {
-            val fineLocationPermission = android.Manifest.permission.ACCESS_FINE_LOCATION
-            val coarseLocationPermission = android.Manifest.permission.ACCESS_COARSE_LOCATION
+            val fineLocationPermission = Manifest.permission.ACCESS_FINE_LOCATION
+            val coarseLocationPermission = Manifest.permission.ACCESS_COARSE_LOCATION
 
             val locationPermissionGranted =
                 checkPermission(fineLocationPermission) && checkPermission(coarseLocationPermission)
 
             val activityPermissionGranted =
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                    val activityRecognitionPermission = android.Manifest.permission.ACTIVITY_RECOGNITION
+                    val activityRecognitionPermission = Manifest.permission.ACTIVITY_RECOGNITION
                     checkPermission(activityRecognitionPermission)
                 } else {
                     true // No need to check activity recognition permission for older versions
                 }
 
             if (locationPermissionGranted && activityPermissionGranted) {
-                requestPermissionLauncher.launch(RecordFragment.REQUIRED_PERMISSIONS)
-            } else {
                 navController.navigate(R.id.recordFragment)
+            } else {
+                requestPermissionLauncher.launch(RecordFragment.REQUIRED_PERMISSIONS)
             }
         }
     }
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
-            val fineLocationPermission = permission[android.Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-            val coarseLocationPermission = permission[android.Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
-
-            val isPermissionGranted =
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                    val activityRecognitionPermission =
-                        permission[android.Manifest.permission.ACTIVITY_RECOGNITION] ?: false
-                    fineLocationPermission && activityRecognitionPermission ||
-                            coarseLocationPermission && activityRecognitionPermission
-                } else {
-                    fineLocationPermission || coarseLocationPermission
-                }
-
-            if (isPermissionGranted) navController.navigate(R.id.recordFragment)
-            else "Permission request denied".showToast(this)
-        }
-
 
     private fun checkPermission(permission: String): Boolean {
         return ContextCompat.checkSelfPermission(
