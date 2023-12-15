@@ -11,6 +11,7 @@ import com.example.trektopia.core.model.abstraction.Task
 import com.example.trektopia.core.model.operation.UpdateProgress
 import com.example.trektopia.core.model.enum.TaskType
 import com.example.trektopia.core.model.User
+import com.example.trektopia.core.model.operation.DataToUpdate
 import com.example.trektopia.core.model.operation.StreakHistory
 import com.example.trektopia.utils.DateHelper
 import com.google.firebase.Timestamp
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.util.Calendar
+import java.util.concurrent.TimeUnit
 import kotlin.Exception
 import kotlin.NullPointerException
 
@@ -228,6 +230,7 @@ class FirestoreDataSource(
     ): Flow<ResultState<List<Activity>>> = callbackFlow{
         trySend(ResultState.Loading)
         val listener = USERS_REF.document(userId).collection("activities")
+            .orderBy("timeStamp", Query.Direction.DESCENDING)
             .addSnapshotListener{snapshot, error ->
                 if (error != null) {
                     Log.e("FirestoreDataSource", "getUserActivities : $error")
@@ -328,7 +331,7 @@ class FirestoreDataSource(
         transaction.update(relationRef, "progress.enabled", false)
     }
 
-    fun addActivityAndUpdateProgress(
+    fun addActivityAndUpdateProgressOri(
         activity: Activity,
         userId: String
     ):Flow<ResultState<Unit>> = flow{
@@ -352,6 +355,53 @@ class FirestoreDataSource(
         }
     }
 
+    fun addActivityAndUpdateProgress(
+        activity: Activity,
+        userId: String
+    ): Flow<ResultState<Unit>> = flow {
+        emit(ResultState.Loading)
+        try {
+            val taskRelationRefs = getUpdateProgress(activity, userId)
+            val dataToUpdate  = mutableListOf<DataToUpdate>()
+
+            db.runTransaction { transaction ->
+                taskRelationRefs.forEach { updateProgress ->
+                    updateProgress.taskAndRelationRef.forEach { (taskRef, relationRef) ->
+                        val (requirement, progress) = retrieveTaskData(transaction, taskRef, relationRef)
+                        dataToUpdate.add(
+                            DataToUpdate(
+                                relationRef = relationRef,
+                                addedProgress = updateProgress.addedProgress,
+                                progress = progress,
+                                requirement = requirement
+                            )
+                        )
+                    }
+                }
+
+                val (userRef, user) = retrieveUser(transaction, userId)
+                updateStreak(transaction, activity, userRef, user)
+
+                dataToUpdate.forEach{dataToUpdate ->
+                    updateTaskProgress(
+                        transaction = transaction,
+                        relationRef = dataToUpdate.relationRef,
+                        requirement = dataToUpdate.requirement,
+                        progress = dataToUpdate.progress,
+                        addedProgress = dataToUpdate.addedProgress
+                    )
+                }
+
+                insertActivity(transaction, activity, userId)
+            }.await()
+
+            emit(ResultState.Success(Unit))
+        } catch (e: Exception) {
+            emit(ResultState.Error(e.message.toString()))
+            Log.e("FirestoreDataSource", e.message.toString())
+        }
+    }
+
     private fun insertActivity(
         transaction: Transaction,
         activity: Activity,
@@ -361,6 +411,51 @@ class FirestoreDataSource(
 
         transaction.set(activityRef,activity)
     }
+
+    private fun retrieveTaskData(
+        transaction: Transaction,
+        taskRef: DocumentReference,
+        relationRef: DocumentReference
+    ): Pair<Double, Progress> {
+        val taskSnapshot = transaction.get(taskRef)
+        val relationSnapshot = transaction.get(relationRef)
+
+        if (!taskSnapshot.exists() || !relationSnapshot.exists()) {
+            throw FirebaseFirestoreException("retrieveTaskData: One or more documents do not exist",
+                FirebaseFirestoreException.Code.NOT_FOUND)
+        }
+
+        val requirement = taskSnapshot.getDouble("requirement")
+            ?: throw NullPointerException("retrieveTaskData: Requirement is null")
+        val progress = relationSnapshot.getField<Progress>("progress")
+            ?: throw NullPointerException("retrieveTaskData: Progress is null")
+
+        return requirement to progress
+    }
+
+    private fun updateTaskProgress(
+        transaction: Transaction,
+        relationRef: DocumentReference,
+        requirement: Double,
+        progress: Progress,
+        addedProgress: Double
+    ) {
+        if (!progress.enabled) {
+            val current = progress.current + addedProgress
+            val oldPercentage = progress.percentage
+            val newPercentage = if (current / requirement < 1.0) current / requirement else 1.0
+
+            if (oldPercentage < 1.0) {
+                val newProgress = Progress(
+                    current = if (newPercentage == 1.0) requirement else current,
+                    percentage = newPercentage,
+                    enabled = newPercentage == 1.0
+                )
+                transaction.update(relationRef, "progress", newProgress)
+            }
+        }
+    }
+
 
     private fun updateTaskProgress(
         transaction: Transaction,
@@ -394,6 +489,58 @@ class FirestoreDataSource(
                 )
                 transaction.update(relationRef, "progress", newProgress)
             }
+        }
+    }
+
+    private fun retrieveUser(
+        transaction: Transaction,
+        userId: String
+    ):Pair<DocumentReference,User>{
+        val userRef = USERS_REF.document(userId)
+        val userSnapshot = transaction.get(userRef)
+
+        if (!userSnapshot.exists()) {
+            throw FirebaseFirestoreException("updateStreak: documents do not exist",
+                FirebaseFirestoreException.Code.NOT_FOUND)
+        }
+
+        val user = userSnapshot.toObject<User>()
+            ?: throw NullPointerException("updateStreak : User is null")
+
+        return userRef to user
+    }
+
+    private fun updateStreak(
+        transaction: Transaction,
+        activity: Activity,
+        userRef: DocumentReference,
+        user: User
+    ) {
+        val count = user.dailyStreak.count
+        val longest = user.dailyStreak.longest
+        val weeklyHistory = user.dailyStreak.history
+        val latestActive = user.dailyStreak.latestActive
+
+        if (latestActive == null || !DateHelper.isTimestampInCurrentDay(latestActive)) {
+            transaction.update(userRef, "dailyStreak.count", count + 1)
+        }
+
+        transaction.update(userRef, "dailyStreak.latestActive", activity.timeStamp)
+
+        if (count > longest) {
+            transaction.update(userRef, "dailyStreak.longest", count)
+        }
+
+        val newWeekly = mutableListOf<StreakHistory>().apply {
+            add(StreakHistory(activity.timeStamp, true))
+        }
+
+        val updatedWeekly = weeklyHistory?.toMutableList() ?: newWeekly
+
+        if (latestActive != null && !DateHelper.isTimestampInCurrentDay(latestActive)) {
+            transaction.update(userRef, "dailyStreak.history", updatedWeekly)
+        } else if (weeklyHistory == null) {
+            transaction.update(userRef, "dailyStreak.history", newWeekly)
         }
     }
 
@@ -439,7 +586,7 @@ class FirestoreDataSource(
     ): List<UpdateProgress>{
         val updateProgresses = listOf(
             "distance" to activity.distance,
-            "duration" to activity.duration,
+            "duration" to TimeUnit.MILLISECONDS.toMinutes(activity.duration).toDouble(),
             "stepCount" to activity.stepCount.toDouble(),
             "activityCount" to 1.0,
             "streakCount" to 1.0
