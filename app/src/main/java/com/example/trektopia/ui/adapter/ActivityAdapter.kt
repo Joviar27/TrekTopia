@@ -51,12 +51,12 @@ class ActivityAdapter (
                     DateHelper.timeStampToLocalDate(activity.timeStamp)
                 )
 
-                distanceInfo.tvActivityInfo.text = activity.distance.toString()
+                distanceInfo.tvActivityInfo.text = String.format("%.1f", activity.distance)
                 distanceInfo.tvInfoType.text = itemView.context.resources.getString(R.string.km)
 
                 tvRecapDuration.text = DateHelper.formatElapsedTime(activity.duration)
 
-                speedInfo.tvActivityInfo.text = activity.speed.toString()
+                speedInfo.tvActivityInfo.text = activity.speed.toInt().toString()
                 speedInfo.tvInfoType.text = itemView.context.resources.getString(R.string.km_h)
 
                 stepInfo.tvActivityInfo.text = itemView.context.resources.getString(
