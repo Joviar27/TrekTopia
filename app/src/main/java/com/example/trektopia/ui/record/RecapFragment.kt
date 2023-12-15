@@ -1,5 +1,7 @@
 package com.example.trektopia.ui.record
 
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,6 +12,8 @@ import android.view.ViewGroup
 import androidx.navigation.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.example.trektopia.R
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.core.model.Activity
@@ -49,11 +53,23 @@ class RecapFragment : Fragment() {
 
     private fun setupView(activity: Activity){
         binding?.apply {
-            //TODO: Create task map route placeholder
-            Glide.with(requireActivity())
+            Glide.with(requireActivity()).asBitmap()
                 .load(activity.route.completeStaticMapUri(requireContext()))
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(ivRecapRoute)
+                .into(object : CustomTarget<Bitmap>(){
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        binding.apply {
+                            ivRecapRoute.setImageBitmap(resource)
+                            pbRecapRoute.visibility = View.GONE
+                        }
+                    }
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                        ivRecapRoute.setImageDrawable(placeholder)
+                    }
+                })
 
             tvRecapDate.text = DateHelper.formatDateMonthYear(
                 DateHelper.timeStampToLocalDate(activity.timeStamp)
@@ -73,15 +89,15 @@ class RecapFragment : Fragment() {
                 )
             )
 
-            recapDistance.tvLiveInfo.text = activity.distance.toString()
+            recapDistance.tvLiveInfo.text = String.format("%.1f", activity.distance)
             recapDistance.tvLiveType.text = resources.getString(R.string.km)
 
             tvRecapDuration.text = DateHelper.formatElapsedTime(activity.duration)
 
-            recapSpeed.tvLiveInfo.text = activity.speed.toString()
+            recapSpeed.tvLiveInfo.text = String.format("%.1f", activity.speed)
             recapSpeed.tvLiveType.text = resources.getString(R.string.km_h)
 
-            recapSteps.tvLiveInfo.text = activity.stepCount.toString()
+            recapSteps.tvLiveInfo.text = String.format("%.1f", (activity.stepCount)/100.0)
             recapSteps.tvLiveType.text = resources.getString(R.string.live_steps)
 
             btnSaveRecord.setOnClickListener {
