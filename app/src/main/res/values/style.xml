@@ -103,9 +103,13 @@
     <style name="LabelSmall" parent="TextAppearance.Material3.LabelSmall">
         <item name="fontFamily">@font/lato_medium</item>
     </style>
+    <style name="LabelLarge.White" parent="LabelLarge">
+        <item name="android:textColor">@color/white</item>
+    </style>
     <style name="LabelSmall.White" parent="LabelSmall">
         <item name="android:textColor">@color/white</item>
     </style>
+
 
     <style name="TextField">
         <item name="android:background">@drawable/bg_textfield_surface_8</item>
