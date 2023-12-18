@@ -86,6 +86,9 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
                 RecordService.LIVE_TIMER_ACTION ->{
                     handleTimer(intent)
                 }
+                RecordService.LIVE_STATUS_ACTION ->{
+                    binding?.apply {handleStatus(intent, this)}
+                }
             }
         }
     }
@@ -112,6 +115,16 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             else "Permission request denied".showToast(requireContext())
         }
 
+    override fun onStop() {
+        localBroadcastManager.unregisterReceiver(broadcastReceiver)
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        localBroadcastManager.unregisterReceiver(broadcastReceiver)
+        super.onDestroyView()
+    }
+
 
     private val resolutionLauncher = registerForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
@@ -128,7 +141,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = this.obtainViewModel()
+        viewModel = this.obtainViewModel(requireContext())
         localBroadcastManager = LocalBroadcastManager.getInstance(requireContext())
     }
 
@@ -140,6 +153,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             addAction(RecordService.CHECK_LOCATION_SETTING_ACTION)
             addAction(RecordService.COORDINATE_ACTION)
             addAction(RecordService.LIVE_TIMER_ACTION)
+            addAction(RecordService.LIVE_STATUS_ACTION)
         }
         localBroadcastManager.registerReceiver(broadcastReceiver, filter)
     }
@@ -173,9 +187,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
     private fun setupActionView() {
         binding?.apply {
             btnStartRecord.setOnClickListener {
-                btnPauseRecord.visibility = View.VISIBLE
-                btnStopRecord.visibility = View.VISIBLE
-                btnStartRecord.visibility = View.GONE
+                showRunningView(this)
 
                 val createCallback = Intent(requireContext(), RecordService::class.java).apply {
                     action = RecordService.ACTION_SETUP_LOCATION_CALLBACK
@@ -186,20 +198,14 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
                 handleServiceAction(RecordService.ACTION_START_RECORDING)
             }
             btnPauseRecord.setOnClickListener {
-                btnPauseRecord.visibility = View.GONE
-                btnStopRecord.visibility = View.GONE
-                btnResumeRecord.visibility = View.VISIBLE
-                btnStopRecordSmall.visibility = View.VISIBLE
+                showPauseView(this)
                 handleServiceAction(RecordService.ACTION_PAUSE_RECORDING)
             }
             btnStopRecord.setOnClickListener {
                 handleServiceAction(RecordService.ACTION_STOP_RECORDING)
             }
             btnResumeRecord.setOnClickListener {
-                btnPauseRecord.visibility = View.VISIBLE
-                btnStopRecord.visibility = View.VISIBLE
-                btnResumeRecord.visibility = View.GONE
-                btnStopRecordSmall.visibility = View.GONE
+                showResumedView(this)
                 handleServiceAction(RecordService.ACTION_RESUME_RECORDING)
             }
             btnStopRecordSmall.setOnClickListener{
@@ -211,11 +217,32 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             liveSpeed.tvLiveType.text = resources.getString(R.string.km_h)
         }
     }
+    private fun showRunningView(binding: FragmentRecordBinding){
+        binding.btnPauseRecord.visibility = View.VISIBLE
+        binding.btnStopRecord.visibility = View.VISIBLE
+        binding.btnStartRecord.visibility = View.GONE
+    }
+    private fun showPauseView(binding: FragmentRecordBinding){
+        binding.btnPauseRecord.visibility = View.GONE
+        binding.btnStopRecord.visibility = View.GONE
+        binding.btnResumeRecord.visibility = View.VISIBLE
+        binding. btnStopRecordSmall.visibility = View.VISIBLE
+    }
+    private fun showResumedView(binding: FragmentRecordBinding){
+        binding.btnPauseRecord.visibility = View.VISIBLE
+        binding.btnStopRecord.visibility = View.VISIBLE
+        binding.btnResumeRecord.visibility = View.GONE
+        binding.btnStopRecordSmall.visibility = View.GONE
+    }
 
     private fun handleServiceAction(action: String) {
         val recordingIntent = Intent(requireContext(), RecordService::class.java)
         recordingIntent.action = action
-        requireContext().startService(recordingIntent)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireContext().startForegroundService(recordingIntent)
+        } else {
+            requireContext().startService(recordingIntent)
+        }
     }
 
     private fun clearMaps(){
@@ -268,13 +295,12 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
 
     private fun showMarker(location: Location){
         val startingLocation = LatLng(location.latitude, location.longitude)
-        //TODO: Change marker title
         mMap.addMarker(
             MarkerOptions()
                 .position(startingLocation)
                 .title(getString(R.string.app_name))
         )
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startingLocation, 17f))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(startingLocation, 16f))
     }
 
     private fun checkPermission(permission: String): Boolean {
@@ -282,15 +308,6 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             requireContext(),
             permission
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun handleFinalResult(intent: Intent){
-        val finalActivity = getParcelableExtra<Activity>(intent, RecordService.EXTRA_FINAL_ACTIVITY)
-        localBroadcastManager.unregisterReceiver(broadcastReceiver)
-
-        val toRecap = RecordFragmentDirections.actionRecordFragmentToRecapFragment(finalActivity)
-        toRecap.activity = finalActivity
-        findNavController().safeNavigate(toRecap)
     }
 
     fun handleTimer(intent: Intent){
@@ -304,6 +321,15 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
         binding?.tvTimer?.text =  String.format("%02d : %02d : %02d", hours, minutes, remainingSeconds)
     }
 
+    private fun handleStatus(intent: Intent, binding: FragmentRecordBinding) {
+        val currentStatus = intent.getBooleanExtra(RecordService.EXTRA_LATEST_STATUS, false)
+        val btnStartVisible = binding.btnStartRecord.visibility == View.VISIBLE
+        if (btnStartVisible) {
+            if (currentStatus) showRunningView(binding)
+            else showPauseView(binding)
+        }
+    }
+
     fun handleCoordinateAction(intent: Intent) {
         try {
             val latLngWrapper = getParcelableExtra<LatLngWrapper>(intent, RecordService.EXTRA_LATEST_COORDINATE)
@@ -315,7 +341,7 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
             mMap.addPolyline(
                 PolylineOptions()
                     .color(Color.RED)
-                    .width(10f)
+                    .width(13f)
                     .addAll(allLatLng)
             )
             val bounds = getParcelableExtra<LatLngBounds>(intent, RecordService.EXTRA_LATEST_BOUND)
@@ -334,6 +360,14 @@ class RecordFragment : Fragment(), OnMapReadyCallback{
     private fun handleException(exception: Exception) {
         Log.e(TAG, exception.message.toString())
         handleServiceAction(RecordService.ACTION_ERROR_RECORDING)
+    }
+
+    fun handleFinalResult(intent: Intent){
+        val finalActivity = getParcelableExtra<Activity>(intent, RecordService.EXTRA_FINAL_ACTIVITY)
+
+        val toRecap = RecordFragmentDirections.actionRecordFragmentToRecapFragment(finalActivity)
+        toRecap.activity = finalActivity
+        findNavController().safeNavigate(toRecap)
     }
 
     companion object{

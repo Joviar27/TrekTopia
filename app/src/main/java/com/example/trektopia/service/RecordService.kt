@@ -17,6 +17,8 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.trektopia.R
 import com.example.trektopia.core.model.Activity
@@ -39,10 +41,10 @@ import java.util.Random
 class RecordService : Service(), SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
-
     private var _stepSensor: Sensor? = null
     private val stepSensor get() = _stepSensor
     private var stepCount = 0.0
+    private var isRecording = false
 
     private lateinit var fusedLocationClient : FusedLocationProviderClient
     private lateinit var locationRequest : LocationRequest
@@ -60,15 +62,18 @@ class RecordService : Service(), SensorEventListener {
 
     private var startTimeInMilis: Long = 0L
     private var elapsedTime: Long = 0L
-    private val handler = Handler(Looper.getMainLooper())
-    private lateinit var runnable: Runnable
+    private val timerHandler = Handler(Looper.getMainLooper())
+    private lateinit var timerRunnable: Runnable
 
     private lateinit var startTime: Timestamp
     private lateinit var endTime: Timestamp
 
-    private var isRecording = false
+    private val statusHandler = Handler(Looper.getMainLooper())
+    private lateinit var statusRunnable: Runnable
 
     private lateinit var localBroadcastManager : LocalBroadcastManager
+
+    private lateinit var notifManager: NotificationManager
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -101,6 +106,8 @@ class RecordService : Service(), SensorEventListener {
                     startTimer()
 
                     isRecording = true
+
+                    startUpdateStatus()
                 }
                 ACTION_RESUME_RECORDING -> {
                     startLocationUpdate()
@@ -114,6 +121,8 @@ class RecordService : Service(), SensorEventListener {
                     endTime = Timestamp.now()
 
                     isRecording = false
+
+                    stopUpdateStatus()
 
                     finalRecordResult()
 
@@ -136,7 +145,7 @@ class RecordService : Service(), SensorEventListener {
                 }
             }
         }
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     private fun startForegroundService() {
@@ -145,6 +154,7 @@ class RecordService : Service(), SensorEventListener {
             .setContentTitle("Walking activity")
             .setContentText("Recording your walk...")
             .setSmallIcon(R.drawable.ic_walk_small)
+            .setLargeIcon(ContextCompat.getDrawable(this@RecordService,R.mipmap.ic_launcher)?.toBitmap())
             .build()
 
         startForeground(NOTIFICATION_ID, notification)
@@ -157,14 +167,15 @@ class RecordService : Service(), SensorEventListener {
                 "Step Counter Service",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
+            notifManager = getSystemService(NotificationManager::class.java)
+            notifManager.createNotificationChannel(channel)
         }
     }
 
     private fun stopForegroundService() {
         stopForeground(STOP_FOREGROUND_DETACH)
         stopSelf()
+        notifManager.cancel(NOTIFICATION_ID)
     }
 
 
@@ -212,18 +223,30 @@ class RecordService : Service(), SensorEventListener {
     }
 
     private fun startTimer() {
-        runnable = object : Runnable {
+        timerRunnable = object : Runnable {
             override fun run() {
                 elapsedTime = System.currentTimeMillis() - startTimeInMilis
-                duration()
-                handler.postDelayed(this, 1000)
+                liveDuration()
+                timerHandler.postDelayed(this, 1000)
             }
         }
-        handler.post(runnable)
+        timerHandler.post(timerRunnable)
+    }
+    private fun stopTimer(){
+        timerHandler.removeCallbacks(timerRunnable)
     }
 
-    private fun stopTimer(){
-        handler.removeCallbacks(runnable)
+    private fun startUpdateStatus() {
+        statusRunnable = object : Runnable {
+            override fun run() {
+                liveStatus()
+                statusHandler.postDelayed(this, 1000)
+            }
+        }
+        statusHandler.post(statusRunnable)
+    }
+    private fun stopUpdateStatus(){
+        statusHandler.removeCallbacks(statusRunnable)
     }
 
     private fun startLocationUpdate(){
@@ -242,9 +265,15 @@ class RecordService : Service(), SensorEventListener {
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
-    private fun duration(){
+    private fun liveDuration(){
         val intent = Intent(LIVE_TIMER_ACTION)
         intent.putExtra(EXTRA_ELAPSED_TIME, elapsedTime)
+        localBroadcastManager.sendBroadcast(intent)
+    }
+
+    private fun liveStatus(){
+        val intent = Intent(LIVE_STATUS_ACTION)
+        intent.putExtra(EXTRA_LATEST_STATUS, isRecording)
         localBroadcastManager.sendBroadcast(intent)
     }
 
@@ -297,8 +326,8 @@ class RecordService : Service(), SensorEventListener {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         sensorManager.unregisterListener(this)
+        super.onDestroy()
     }
 
     private fun generateRandomId(totalCount: Int, elapsed: Long, averageSpeed: Double): String {
@@ -320,6 +349,7 @@ class RecordService : Service(), SensorEventListener {
         const val CHECK_LOCATION_SETTING_ACTION = "check-location-setting"
         const val COORDINATE_ACTION = "lat-lng-update"
         const val LIVE_TIMER_ACTION = "elapsed-time-update"
+        const val LIVE_STATUS_ACTION = "status-update"
 
         //Send data to fragment
         const val EXTRA_LIVE_COUNT = "liveStepCount"
@@ -329,6 +359,7 @@ class RecordService : Service(), SensorEventListener {
         const val EXTRA_LATEST_SPEED = "latestSpeed"
         const val EXTRA_TOTAL_DISTANCE = "totalDistance"
         const val EXTRA_FINAL_ACTIVITY = "finalActivity"
+        const val EXTRA_LATEST_STATUS = "recordStatus"
 
         //Receive data from fragment
         const val EXTRA_LOCATION_REQUEST = "locationRequest"
@@ -339,7 +370,6 @@ class RecordService : Service(), SensorEventListener {
         const val ACTION_STOP_RECORDING = "stopRecording"
         const val ACTION_PAUSE_RECORDING = "pauseRecording"
         const val ACTION_ERROR_RECORDING = "errorRecording"
-        const val ACTION_SETUP_LOCATION_REQUEST = "createLocationRequest"
         const val ACTION_SETUP_LOCATION_CALLBACK = "createLocationCallback"
 
         //Notification related
