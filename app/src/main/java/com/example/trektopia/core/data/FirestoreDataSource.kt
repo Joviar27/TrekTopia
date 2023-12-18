@@ -30,9 +30,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDate
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
 import kotlin.Exception
 import kotlin.NullPointerException
 
@@ -91,21 +89,23 @@ class FirestoreDataSource(
             }
 
             val user = userSnapshot.toObject<User>()
-                ?: throw NullPointerException("updateStreak : User is null")
-            val history = user.dailyStreak.history
+                ?: throw NullPointerException("resetStreak : User is null")
+            val weeklyHistory = user.dailyStreak.history
 
-            if(history!=null){
-                val updatedWeekly = history.toMutableList().add(StreakHistory(
-                    Timestamp.now(),
-                    false
-                ))
-                transaction.update(userRef,"dailyStreak.weeklyHistory", updatedWeekly)
-            } else {
-                val newWeekly = mutableListOf<StreakHistory>().add(StreakHistory(
-                    Timestamp.now(),
-                    false
-                ))
-                transaction.update(userRef,"dailyStreak.weeklyHistory", newWeekly)
+            val currentTimestamp = Timestamp.now()
+
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = currentTimestamp.seconds * 1000
+            calendar.add(Calendar.DAY_OF_MONTH, -1)
+            val previousDayTimestamp = Timestamp(calendar.time)
+
+            weeklyHistory?.let {
+                val updatedWeekly = it.toMutableList()
+                updatedWeekly.add(StreakHistory(previousDayTimestamp, false))
+                transaction.update(userRef, "dailyStreak.history", updatedWeekly)
+            } ?: run {
+                val newWeekly = mutableListOf(StreakHistory(previousDayTimestamp, false))
+                transaction.update(userRef, "dailyStreak.history", newWeekly)
             }
 
             transaction.update(userRef, "dailyStreak.count", 0)
@@ -120,10 +120,10 @@ class FirestoreDataSource(
         awaitClose()
     }
 
-    fun resetDailyMission(): Flow<ResultState<Unit>> = flow{
+    fun resetDailyMission(userId: String): Flow<ResultState<Unit>> = flow{
         emit(ResultState.Loading)
         try {
-            val relationRefs = getMissionRelationRef()
+            val relationRefs = getMissionRelationRef(userId)
             db.runTransaction { transaction ->
                 relationRefs.forEach{ relationRef ->
                     resetMission(transaction, relationRef)
@@ -136,8 +136,8 @@ class FirestoreDataSource(
         }
     }
 
-    private suspend fun getMissionRelationRef(): List<DocumentReference> {
-        return MISSION_RELATIONS_REF.get().await()
+    private suspend fun getMissionRelationRef(userId: String): List<DocumentReference> {
+        return MISSION_RELATIONS_REF.whereEqualTo("userRef", userId).get().await()
             .documents.map { it.reference }
     }
 
@@ -149,19 +149,43 @@ class FirestoreDataSource(
         transaction.update(relationRef,"activeDate", Timestamp.now())
     }
 
-    fun checkLatestActiveDate(
+    fun isLatestActiveCurrentDay(
         userId: String
-    ): Flow<ResultState<LocalDate>> = callbackFlow {
+    ): Flow<ResultState<Boolean>> = callbackFlow {
         trySend(ResultState.Loading)
         USERS_REF.document(userId).get()
             .addOnSuccessListener { snapshot ->
-                val dailyStreak = snapshot.getField<DailyStreak>("dailyStreak")
-                val latestDate = dailyStreak?.latestActive?.let {
-                    DateHelper.timeStampToLocalDate(it)
-                }
+                val latestActive = snapshot.getTimestamp("dailyStreak.latestActive")
 
-                if(latestDate!=null){
-                    trySend(ResultState.Success(latestDate))
+                if(latestActive!=null){
+                    trySend(ResultState.Success(
+                        DateHelper.isTimestampInCurrentDay(latestActive)
+                    ))
+                } else {
+                    trySend(ResultState.Error("latest date is null"))
+                    Log.e("FirestoreDataSource", "getLatestActive: latest date is null")
+                }
+            }.addOnFailureListener { e ->
+                trySend(ResultState.Error(e.message.toString()))
+                Log.e("FirestoreDataSource", "getLatestActive: $e")
+            }.addOnCompleteListener {
+                close()
+            }
+        awaitClose()
+    }
+
+    fun isLatestActivePreviousDay(
+        userId: String
+    ): Flow<ResultState<Boolean>> = callbackFlow {
+        trySend(ResultState.Loading)
+        USERS_REF.document(userId).get()
+            .addOnSuccessListener { snapshot ->
+                val latestActive = snapshot.getTimestamp("dailyStreak.latestActive")
+
+                if(latestActive!=null){
+                    trySend(ResultState.Success(
+                        DateHelper.isTimeStampPreviousDay(latestActive)
+                    ))
                 } else {
                     trySend(ResultState.Error("latest date is null"))
                     Log.e("FirestoreDataSource", "getLatestActive: latest date is null")
@@ -457,6 +481,7 @@ class FirestoreDataSource(
     }
 
 
+    //Not used
     private fun updateTaskProgress(
         transaction: Transaction,
         taskRef: DocumentReference,
@@ -523,24 +548,20 @@ class FirestoreDataSource(
 
         if (latestActive == null || !DateHelper.isTimestampInCurrentDay(latestActive)) {
             transaction.update(userRef, "dailyStreak.count", count + 1)
+            if (count+1 > longest) {
+                transaction.update(userRef, "dailyStreak.longest", count+1)
+            }
         }
 
         transaction.update(userRef, "dailyStreak.latestActive", activity.timeStamp)
 
-        if (count > longest) {
-            transaction.update(userRef, "dailyStreak.longest", count)
-        }
-
-        val newWeekly = mutableListOf<StreakHistory>().apply {
-            add(StreakHistory(activity.timeStamp, true))
-        }
-
-        val updatedWeekly = weeklyHistory?.toMutableList() ?: newWeekly
+        val updatedWeekly = (weeklyHistory?.toMutableList() ?: mutableListOf())
+            .apply { add(StreakHistory(activity.timeStamp, true)) }
 
         if (latestActive != null && !DateHelper.isTimestampInCurrentDay(latestActive)) {
             transaction.update(userRef, "dailyStreak.history", updatedWeekly)
         } else if (weeklyHistory == null) {
-            transaction.update(userRef, "dailyStreak.history", newWeekly)
+            transaction.update(userRef, "dailyStreak.history", updatedWeekly)
         }
     }
 
@@ -586,7 +607,7 @@ class FirestoreDataSource(
     ): List<UpdateProgress>{
         val updateProgresses = listOf(
             "distance" to activity.distance,
-            "duration" to TimeUnit.MILLISECONDS.toMinutes(activity.duration).toDouble(),
+            "duration" to DateHelper.millisToMinutes(activity.duration),
             "stepCount" to activity.stepCount.toDouble(),
             "activityCount" to 1.0,
             "streakCount" to 1.0
