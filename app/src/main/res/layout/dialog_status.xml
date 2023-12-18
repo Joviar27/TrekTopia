@@ -4,8 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cv_status"
-    android:layout_width="280dp"
-    android:layout_height="210dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:elevation="90dp"
     android:paddingHorizontal="16dp"
     android:paddingVertical="16dp"
@@ -16,25 +16,38 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent">
 
-    <ImageView
-        android:id="@+id/iv_icon"
-        android:layout_width="84dp"
-        android:layout_height="84dp"
-        android:layout_gravity="top|center_horizontal"
-        android:layout_marginTop="28dp"
-        tools:background="@drawable/ic_loading"
-        tools:backgroundTint="?attr/colorSecondary"/>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tv_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="28dp"
-        tools:text="@string/dialog_loading_activity"
-        android:textAppearance="@style/TitleMedium.SemiBold"
-        android:textAlignment="center"
-        android:textSize="16sp" />
+        <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="@drawable/ic_loading"
+            tools:backgroundTint="?attr/colorSecondary" />
 
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="32dp"
+            android:textAlignment="center"
+            android:textAppearance="@style/TitleMedium.SemiBold"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_icon"
+            app:layout_constraintTop_toTopOf="@+id/iv_icon"
+            tools:text="@string/dialog_loading_activity" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
