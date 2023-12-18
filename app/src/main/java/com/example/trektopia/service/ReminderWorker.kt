@@ -6,6 +6,8 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.trektopia.R
@@ -53,6 +55,7 @@ class ReminderWorker(
             val notification = NotificationCompat.Builder(applicationContext, "reminder_channel_id")
                 .setSmallIcon(R.drawable.ic_walk_small)
                 .setContentTitle("Reminder")
+                .setLargeIcon(ContextCompat.getDrawable(applicationContext,R.drawable.ic_warning)?.toBitmap())
                 .setContentText("Don't forget to exercise today!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build()
