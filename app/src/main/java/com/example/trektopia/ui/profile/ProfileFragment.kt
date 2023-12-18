@@ -36,7 +36,10 @@ class ProfileFragment : Fragment() {
 
     private lateinit var viewModel: ProfileViewModel
     private lateinit var taskAdapter: TaskAdapter
-    private lateinit var statusDialog: StatusDialog
+
+    private lateinit var loadingStatusDialog: StatusDialog
+    private lateinit var failedStatusDialog: StatusDialog
+    private lateinit var successStatusDialog: StatusDialog
 
     private val launcherIntentGallery = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -53,14 +56,14 @@ class ProfileFragment : Fragment() {
         if (isGranted) {
             launcherIntentGallery.launch("image/*")
         } else {
-            resources.getString(R.string.gallery_not_permitted)
+            resources.getString(R.string.gallery_not_permitted).showToast(requireContext())
         }
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = this.obtainViewModel()
+        viewModel = this.obtainViewModel(requireContext())
     }
 
     override fun onCreateView(
@@ -98,7 +101,7 @@ class ProfileFragment : Fragment() {
 
             tvUserName.text = user.username
             tvUserEmail.text = user.email
-            tvUserPoint.text = user.point.toString()
+            tvUserPoint.text = resources.getString(R.string.point, user.point.toString())
 
             setEditButtonClickListener(user)
             setSaveButtonClickListener(user)
@@ -139,12 +142,18 @@ class ProfileFragment : Fragment() {
                 is ResultState.Loading -> showLoading(
                     resources.getString(R.string.dialog_loading_update_profile)
                 )
-                is ResultState.Success -> showSuccess(
-                    resources.getString(R.string.dialog_success_update_profile)
-                )
-                is ResultState.Error -> showFailed(
-                    resources.getString(R.string.dialog_fail_update_profile)
-                )
+                is ResultState.Success -> {
+                    showSuccess(
+                        resources.getString(R.string.dialog_success_update_profile)
+                    )
+                    dismissLoading()
+                }
+                is ResultState.Error -> {
+                    showFailed(
+                        resources.getString(R.string.dialog_fail_update_profile)
+                    )
+                    dismissLoading()
+                }
             }
         }
     }
@@ -181,12 +190,18 @@ class ProfileFragment : Fragment() {
             is ResultState.Loading -> showLoading(
                 resources.getString(R.string.dialog_loading_update)
             )
-            is ResultState.Success -> showSuccess(
-                resources.getString(R.string.dialog_success_update)
-            )
-            is ResultState.Error -> showFailed(
-                resources.getString(R.string.dialog_fail_update)
-            )
+            is ResultState.Success -> {
+                showSuccess(
+                    resources.getString(R.string.dialog_success_update)
+                )
+                dismissLoading()
+            }
+            is ResultState.Error -> {
+                showFailed(
+                    resources.getString(R.string.dialog_fail_update)
+                )
+                dismissLoading()
+            }
         }
     }
 
@@ -229,12 +244,18 @@ class ProfileFragment : Fragment() {
                 is ResultState.Loading -> showLoading(
                     resources.getString(R.string.dialog_loading_claim)
                 )
-                is ResultState.Error -> showSuccess(
-                    resources.getString(R.string.dialog_fail_claim)
-                )
-                is ResultState.Success -> showLoading(
-                    resources.getString(R.string.dialog_success_claim)
-                )
+                is ResultState.Error -> {
+                    showFailed(
+                        resources.getString(R.string.dialog_fail_claim)
+                    )
+                    dismissLoading()
+                }
+                is ResultState.Success -> {
+                    showSuccess(
+                        resources.getString(R.string.dialog_success_claim,reward.toString())
+                    )
+                    dismissLoading()
+                }
             }
         }
     }
@@ -242,13 +263,11 @@ class ProfileFragment : Fragment() {
     private fun observeUserData(){
         viewModel.user.observe(requireActivity()){ userResult ->
             when(userResult){
-                is ResultState.Loading -> Unit //showLoadingBar(true)
+                is ResultState.Loading -> Unit
                 is ResultState.Success -> {
-                    //showLoadingBar(false)
                     setupUserView(userResult.data)
                 }
                 is ResultState.Error -> {
-                    //showLoadingBar(false)
                     resources.getString(R.string.page_failed_load).showToast(requireContext())
                 }
             }
@@ -258,9 +277,8 @@ class ProfileFragment : Fragment() {
     private fun observeMissionsData(){
         viewModel.achievements.observe(requireActivity()){ missionsResult ->
             when(missionsResult){
-                is ResultState.Loading -> Unit //showLoadingBar(true)
+                is ResultState.Loading -> Unit
                 is ResultState.Success -> {
-                    //showLoadingBar(false)
                     taskAdapter.submitList(missionsResult.data)
                 }
                 is ResultState.Error -> {
@@ -272,39 +290,39 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showLoading(message: String){
-        statusDialog = StatusDialog.newInstance(
+        loadingStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_loading,
             message,
         )
-        statusDialog.show(childFragmentManager, "LoadingStatusDialog")
+        loadingStatusDialog.show(childFragmentManager, "LoadingStatusDialog")
+    }
+
+    private fun dismissLoading(){
+        loadingStatusDialog.dismiss()
     }
 
     private fun showSuccess(message: String){
-        statusDialog = StatusDialog.newInstance(
+        successStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_success,
             message,
         )
-        statusDialog.show(childFragmentManager, "SuccessStatusDialog")
+        successStatusDialog.show(childFragmentManager, "SuccessStatusDialog")
 
         Handler(Looper.getMainLooper()).postDelayed({
-            statusDialog.dismiss()
-        }, 1000L)
+            successStatusDialog.dismiss()
+        }, 2000L)
     }
 
     private fun showFailed(message: String){
-        statusDialog = StatusDialog.newInstance(
+        failedStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_error,
             message,
         )
-        statusDialog.show(childFragmentManager, "SuccessStatusDialog")
+        failedStatusDialog.show(childFragmentManager, "SuccessStatusDialog")
 
         Handler(Looper.getMainLooper()).postDelayed({
-            statusDialog.dismiss()
-        }, 1000L)
-    }
-
-    private fun showLoadingBar(isLoading: Boolean){
-        binding?.pbLoading?.visibility = if(isLoading) View.VISIBLE else View.GONE
+            failedStatusDialog.dismiss()
+        }, 2000L)
     }
 
 }
