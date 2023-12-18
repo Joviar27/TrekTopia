@@ -1,11 +1,15 @@
 package com.example.trektopia.ui.home
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +20,7 @@ import com.example.trektopia.R
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.core.model.User
 import com.example.trektopia.databinding.FragmentHomeBinding
+import com.example.trektopia.service.AlarmReceiver
 import com.example.trektopia.ui.DividerItemDecorator
 import com.example.trektopia.ui.adapter.StreakAdapter
 import com.example.trektopia.ui.adapter.TaskAdapter
@@ -39,11 +44,48 @@ class HomeFragment : Fragment() {
     private lateinit var viewModel: HomeViewModel
     private lateinit var taskAdapter: TaskAdapter
     private lateinit var streakAdapter: StreakAdapter
-    private lateinit var statusDialog: StatusDialog
+
+    private lateinit var loadingStatusDialog: StatusDialog
+    private lateinit var failedStatusDialog: StatusDialog
+    private lateinit var successStatusDialog: StatusDialog
+
+    private lateinit var receiver: AlarmReceiver
+
+    private val requestSinglePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            setupDailyReminder()
+        } else {
+            resources.getString(R.string.permssion_notif_denied).showToast(requireContext())
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = this.obtainViewModel()
+        viewModel = this.obtainViewModel(requireContext())
+
+        receiver = AlarmReceiver()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkPermission(Manifest.permission.POST_NOTIFICATIONS)) {
+                setupDailyReminder()
+            } else {
+                requestSinglePermissionLauncher.launch(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            }
+        } else {
+            setupDailyReminder()
+        }
+        setupDailyReset()
+    }
+
+    private fun checkPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            permission
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onCreateView(
@@ -62,6 +104,7 @@ class HomeFragment : Fragment() {
         observeUserData()
         observeMissionsData()
     }
+
 
     private fun setupUserView(user: User){
         binding?.apply {
@@ -88,7 +131,7 @@ class HomeFragment : Fragment() {
                 R.string.longest_streak,
                 user.dailyStreak.longest.toString()
             )
-            streakAdapter.submitList(user.dailyStreak.history)
+            streakAdapter.submitList(user.dailyStreak.history?.reversed())
         }
     }
 
@@ -124,18 +167,55 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun setupDailyReminder(){
+        val reminderStarted = viewModel.getNotifStatus()
+
+        if (!reminderStarted) {
+            receiver.setReminderAlarm(
+                requireActivity(),
+                7,
+                AlarmReceiver.SHOW_NOTIF_ACTION,
+                AlarmReceiver.REMINDER_ALARM_ID_1
+            )
+            receiver.setReminderAlarm(
+                requireActivity(),
+                16,
+                AlarmReceiver.SHOW_NOTIF_ACTION,
+                AlarmReceiver.REMINDER_ALARM_ID_2
+            )
+
+            viewModel.setNotifStatus(true)
+        }
+    }
+
+    private fun setupDailyReset(){
+        val resetStarted = viewModel.getResetStatus()
+
+        if (!resetStarted) {
+            receiver.setReminderAlarm(
+                requireContext(),
+                0,
+                AlarmReceiver.DAILY_RESET_ACTION,
+                AlarmReceiver.RESET_ALARM_ID
+            )
+
+            viewModel.setResetStatus(true)
+        }
+    }
+
     private fun claimReward(relationId: String, reward: Int){
         viewModel.claimTaskReward(relationId, reward).observe(requireActivity()){claimResult ->
             when(claimResult){
-                is ResultState.Loading -> showLoading(
-                    resources.getString(R.string.dialog_loading_claim)
-                )
-                is ResultState.Error -> showFailed(
-                    resources.getString(R.string.dialog_fail_claim)
-                )
-                is ResultState.Success -> showSuccess(
-                    resources.getString(R.string.dialog_success_claim)
-                )
+                is ResultState.Loading -> showLoading()
+                is ResultState.Error ->{
+                    showFailed()
+                    dismissLoading()
+                }
+                is ResultState.Success ->{
+                    showSuccess(reward)
+                    dismissLoading()
+
+                }
             }
         }
     }
@@ -143,13 +223,11 @@ class HomeFragment : Fragment() {
     private fun observeUserData(){
         viewModel.user.observe(requireActivity()){ userResult ->
             when(userResult){
-                is ResultState.Loading -> Unit //showLoadingBar(true)
+                is ResultState.Loading -> Unit
                 is ResultState.Success -> {
-                    //showLoadingBar(false)
                     setupUserView(userResult.data)
                 }
                 is ResultState.Error -> {
-                    //showLoadingBar(false)
                     resources.getString(R.string.page_failed_load).showToast(requireContext())
                 }
             }
@@ -159,16 +237,16 @@ class HomeFragment : Fragment() {
     private fun observeMissionsData(){
         viewModel.missions.observe(requireActivity()){ missionsResult ->
             when(missionsResult){
-                is ResultState.Loading -> Unit //showLoadingBar(true)
+                is ResultState.Loading -> Unit
                 is ResultState.Success -> {
-                    //showLoadingBar(false)
                     taskAdapter.submitList(missionsResult.data)
-                    setupCountdown(missionsResult.data[0].activeDate
-                        ?: missionsResult.data[1].activeDate!!
-                    )
+                    if(missionsResult.data.isNotEmpty()){
+                        setupCountdown(missionsResult.data[0].activeDate
+                            ?: missionsResult.data[1].activeDate!!
+                        )
+                    }
                 }
                 is ResultState.Error -> {
-                    //showLoadingBar(false)
                     resources.getString(R.string.page_failed_load).showToast(requireContext())
                 }
             }
@@ -192,39 +270,39 @@ class HomeFragment : Fragment() {
         return (remainingMillis / 3600000).toInt()
     }
 
-    private fun showLoading(message: String){
-        statusDialog = StatusDialog.newInstance(
+    private fun showLoading(){
+        loadingStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_loading,
-            message,
+            resources.getString(R.string.dialog_loading_claim),
         )
-        statusDialog.show(childFragmentManager, "LoadingStatusDialog")
+        loadingStatusDialog.show(childFragmentManager, "LoadingStatusDialog")
     }
 
-    private fun showSuccess(message: String){
-        statusDialog = StatusDialog.newInstance(
+    private fun dismissLoading(){
+        loadingStatusDialog.dismiss()
+    }
+
+    private fun showSuccess(reward: Int){
+        successStatusDialog =  StatusDialog.newInstance(
             R.drawable.ic_success,
-            message,
+            resources.getString(R.string.dialog_success_claim, reward.toString()),
         )
-        statusDialog.show(childFragmentManager, "SuccessStatusDialog")
+        successStatusDialog.show(childFragmentManager, "SuccessStatusDialog")
 
         Handler(Looper.getMainLooper()).postDelayed({
-            statusDialog.dismiss()
-        }, 1000L)
+            successStatusDialog.dismiss()
+        }, 2000L)
     }
 
-    private fun showFailed(message: String){
-        statusDialog = StatusDialog.newInstance(
+    private fun showFailed(){
+        failedStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_error,
-            message,
+            resources.getString(R.string.dialog_fail_claim),
         )
-        statusDialog.show(childFragmentManager, "SuccessStatusDialog")
+        failedStatusDialog.show(childFragmentManager, "SuccessStatusDialog")
 
         Handler(Looper.getMainLooper()).postDelayed({
-            statusDialog.dismiss()
-        }, 1000L)
-    }
-
-    private fun showLoadingBar(isLoading: Boolean){
-        binding?.pbLoading?.visibility = if(isLoading) View.VISIBLE else View.GONE
+            failedStatusDialog.dismiss()
+        }, 2000L)
     }
 }
