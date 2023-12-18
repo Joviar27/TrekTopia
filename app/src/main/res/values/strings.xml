@@ -39,6 +39,7 @@
     <string name="point">%s Point</string>
     <string name="countdown">%d Hours</string>
     <string name="greeting">Hello! %s</string>
+    <string name="permssion_notif_denied">Notification Permission Denied</string>
     <!--  Streak  -->
     <string name="current_streak">Total : %s Days</string>
     <string name="longest_streak">Your record : %s Days</string>
@@ -78,12 +79,12 @@
 
     <string name="dialog_loading_activity">Awesome!\nSaving your activity…</string>
     <string name="dialog_loading_claim">Good job!\nClaiming your reward…</string>
-    <string name="dialog_loading_update">Okay!Updating your data…</string>
-    <string name="dialog_loading_update_profile">Okay!Updating your profile…</string>
+    <string name="dialog_loading_update">Okay!\nUpdating your data…</string>
+    <string name="dialog_loading_update_profile">Okay!\nUpdating your profile…</string>
 
     <string name="dialog_success_claim">Point successfully claimed!\nAdded %s points</string>
     <string name="dialog_success_update">Update success!\nYour username is updated</string>
-    <string name="dialog_success_update_profile">Update success!\nYour username is updated</string>
+    <string name="dialog_success_update_profile">Update success!\nYour picture is updated</string>
 
     <string name="dialog_fail_activity">Failed to save activity…\nPlease try again</string>
     <string name="dialog_fail_claim">Failed to claim points…\nPlease try again</string>
