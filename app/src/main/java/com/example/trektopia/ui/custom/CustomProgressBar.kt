@@ -36,7 +36,10 @@ class CustomProgressBar : RelativeLayout {
         val layoutParams = progressBar.layoutParams as LayoutParams
         val fullWidth = progressBackground.layoutParams.width
         layoutParams.width = (fullWidth * (percentage*100) / 100.0).toInt()
-        progressBar.layoutParams = layoutParams
+        progressBar.layoutParams = if(layoutParams.width<55&&layoutParams.width!=0){
+            layoutParams.width = 55
+            layoutParams
+        } else layoutParams
 
         progressText.text = context.resources.getString(R.string.progress,current,required)
     }
