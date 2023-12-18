@@ -1,9 +1,11 @@
 package com.example.trektopia.core.di
 
-import android.util.Log
+import android.content.Context
 import com.example.trektopia.core.data.AuthDataSource
 import com.example.trektopia.core.data.FirestoreDataSource
 import com.example.trektopia.core.data.StorageDataSource
+import com.example.trektopia.core.preferences.NotificationPreference
+import com.example.trektopia.core.preferences.ResetPreference
 import com.example.trektopia.core.repository.AuthRepository
 import com.example.trektopia.core.repository.GameRepository
 import com.example.trektopia.core.repository.Repository
@@ -18,6 +20,9 @@ object Injection {
     private fun provideFirestoreDataSource() = FirestoreDataSource(Firebase.firestore)
     private fun provideStorageDataSource() = StorageDataSource(Firebase.storage.reference)
 
+    private fun provideNotifPreference(context: Context) = NotificationPreference(context)
+    private fun provideResetPreference(context: Context) = ResetPreference(context)
+
     fun provideAuthRepository(): AuthRepository{
         return AuthRepository(
             provideAuthDataSource(),
@@ -30,10 +35,12 @@ object Injection {
             provideFirestoreDataSource()
         )
 
-    fun provideRepository() =
+    fun provideRepository(context: Context) =
         Repository(
             provideFirestoreDataSource(),
-            provideStorageDataSource()
+            provideStorageDataSource(),
+            provideNotifPreference(context),
+            provideResetPreference(context)
         )
 
 }

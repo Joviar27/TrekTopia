@@ -1,5 +1,6 @@
 package com.example.trektopia.utils
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.trektopia.core.di.Injection
@@ -18,13 +19,13 @@ import com.example.trektopia.ui.register.RegisterViewModel
 class ViewModelFactory (
     private val authRepository: AuthRepository,
     private val gameRepository: GameRepository,
-    private val repository: Repository
+    private val repository: Repository,
 ): ViewModelProvider.NewInstanceFactory() {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return when {
-            modelClass.isAssignableFrom(AuthViewModel::class.java) -> AuthViewModel(authRepository) as T
+            modelClass.isAssignableFrom(AuthViewModel::class.java) -> AuthViewModel(authRepository,repository) as T
             modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(authRepository) as T
             modelClass.isAssignableFrom(RegisterViewModel::class.java) -> RegisterViewModel(authRepository) as T
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> HomeViewModel(repository,gameRepository,authRepository) as T
@@ -41,12 +42,12 @@ class ViewModelFactory (
         private var INSTANCE: ViewModelFactory? = null
 
         @JvmStatic
-        fun getInstance(): ViewModelFactory {
+        fun getInstance(context: Context): ViewModelFactory {
             return INSTANCE ?: synchronized(ViewModelFactory::class.java) {
                 INSTANCE ?: ViewModelFactory(
                     Injection.provideAuthRepository(),
                     Injection.provideGameRepository(),
-                    Injection.provideRepository()
+                    Injection.provideRepository(context),
                 )
             }
         }
