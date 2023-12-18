@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.trektopia.R
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.databinding.FragmentFullAchievementsBinding
-import com.example.trektopia.databinding.FragmentProfileBinding
 import com.example.trektopia.ui.adapter.TaskAdapter
 import com.example.trektopia.ui.dialog.StatusDialog
 import com.example.trektopia.utils.obtainViewModel
@@ -26,11 +25,14 @@ class FullAchievementsFragment : Fragment() {
 
     private lateinit var viewModel: ProfileViewModel
     private lateinit var taskAdapter: TaskAdapter
-    private lateinit var statusDialog: StatusDialog
+
+    private lateinit var loadingStatusDialog: StatusDialog
+    private lateinit var failedStatusDialog: StatusDialog
+    private lateinit var successStatusDialog: StatusDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = this.obtainViewModel()
+        viewModel = this.obtainViewModel(requireContext())
     }
 
     override fun onCreateView(
@@ -74,12 +76,18 @@ class FullAchievementsFragment : Fragment() {
                 is ResultState.Loading -> showLoading(
                     resources.getString(R.string.dialog_loading_claim)
                 )
-                is ResultState.Error -> showSuccess(
-                    resources.getString(R.string.dialog_fail_claim)
-                )
-                is ResultState.Success -> showLoading(
-                    resources.getString(R.string.dialog_success_claim)
-                )
+                is ResultState.Error -> {
+                    showFailed(
+                        resources.getString(R.string.dialog_fail_claim)
+                    )
+                    dismissLoading()
+                }
+                is ResultState.Success -> {
+                    showSuccess(
+                        resources.getString(R.string.dialog_success_claim, reward.toString())
+                    )
+                    dismissLoading()
+                }
             }
         }
     }
@@ -101,34 +109,38 @@ class FullAchievementsFragment : Fragment() {
     }
 
     private fun showLoading(message: String){
-        statusDialog = StatusDialog.newInstance(
+        loadingStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_loading,
             message,
         )
-        statusDialog.show(childFragmentManager, "LoadingStatusDialog")
+        loadingStatusDialog.show(childFragmentManager, "LoadingStatusDialog")
+    }
+
+    private fun dismissLoading(){
+        loadingStatusDialog.dismiss()
     }
 
     private fun showSuccess(message: String){
-        statusDialog = StatusDialog.newInstance(
+        successStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_success,
             message,
         )
-        statusDialog.show(childFragmentManager, "SuccessStatusDialog")
+        successStatusDialog.show(childFragmentManager, "SuccessStatusDialog")
 
         Handler(Looper.getMainLooper()).postDelayed({
-            statusDialog.dismiss()
+            successStatusDialog.dismiss()
         }, 1000L)
     }
 
     private fun showFailed(message: String){
-        statusDialog = StatusDialog.newInstance(
+        failedStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_error,
             message,
         )
-        statusDialog.show(childFragmentManager, "SuccessStatusDialog")
+        failedStatusDialog.show(childFragmentManager, "SuccessStatusDialog")
 
         Handler(Looper.getMainLooper()).postDelayed({
-            statusDialog.dismiss()
+            failedStatusDialog.dismiss()
         }, 1000L)
     }
 }

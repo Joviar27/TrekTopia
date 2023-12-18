@@ -25,7 +25,7 @@ class HistoryFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = this.obtainViewModel()
+        viewModel = this.obtainViewModel(requireContext())
     }
 
     override fun onCreateView(
