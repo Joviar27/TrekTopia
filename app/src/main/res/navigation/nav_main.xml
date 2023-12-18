@@ -86,10 +86,14 @@
             app:argType="com.example.trektopia.core.model.Activity" />
         <action
             android:id="@+id/action_recapFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            app:destination="@id/homeFragment"
+            app:popUpTo="@id/recapFragment"
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_recapFragment_to_historyFragment"
-            app:destination="@id/historyFragment" />
+            app:destination="@id/historyFragment"
+            app:popUpTo="@id/recapFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/rankFragment"
