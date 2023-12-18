@@ -1,20 +1,13 @@
 package com.example.trektopia.ui.home
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.trektopia.core.ResultState
-import com.example.trektopia.core.model.User
 import com.example.trektopia.core.model.enum.TaskType
-import com.example.trektopia.core.model.operation.TaskWithProgress
 import com.example.trektopia.core.repository.AuthRepository
 import com.example.trektopia.core.repository.GameRepository
 import com.example.trektopia.core.repository.Repository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -40,5 +33,11 @@ class HomeViewModel(
 
     fun claimTaskReward(relationId:String, reward: Int) =
         gameRepository.claimTaskReward(uid, relationId, reward, TaskType.MISSION).asLiveData()
+
+    fun getNotifStatus() = repository.getNotificationStatus()
+    fun setNotifStatus(status: Boolean) = repository.setNotificationStatus(status)
+
+    fun getResetStatus() = repository.getResetStatus()
+    fun setResetStatus(status: Boolean) = repository.setResetStatus(status)
 
 }
