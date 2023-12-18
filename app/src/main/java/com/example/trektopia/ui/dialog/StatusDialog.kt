@@ -2,10 +2,7 @@ package com.example.trektopia.ui.dialog
 
 import android.app.Dialog
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import com.example.trektopia.databinding.DialogStatusBinding
 
@@ -33,7 +30,7 @@ class StatusDialog : DialogFragment() {
         var message =""
         if(arguments!=null){
             icon = arguments?.getInt(ARG_ICON) ?: 0
-            message = arguments?.getString(ARG_ICON) ?: "Dialog Error"
+            message = arguments?.getString(ARG_MESSAGE) ?: "Dialog Error"
         }
 
         binding = DialogStatusBinding.inflate(layoutInflater)
@@ -44,10 +41,8 @@ class StatusDialog : DialogFragment() {
             tvMessage.text = message
         }
 
-
-        return AlertDialog.Builder(requireActivity())
+        return AlertDialog.Builder(requireContext())
             .setView(view)
-            .setTitle("Please wait..")
             .create()
 
     }
