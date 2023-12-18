@@ -16,6 +16,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.trektopia.R
 import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.databinding.ActivityMainBinding
+import com.example.trektopia.service.AlarmReceiver
 import com.example.trektopia.ui.record.RecordFragment
 import com.example.trektopia.utils.showToast
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: AuthViewModel
 
     private lateinit var navController:NavController
+
+    private lateinit var receiver: AlarmReceiver
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permission ->
@@ -53,18 +56,16 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        receiver = AlarmReceiver()
+
         setSupportActionBar(binding.bottomAppBar)
 
-        viewModel = this.obtainViewModel()
+        viewModel = this.obtainViewModel(this)
 
         setupNavigation()
     }
 
     private fun setupNavigation(){
-        /*val navView : BottomNavigationView = binding.bottomNavView
-        navController = Navigation.findNavController(this, R.id.nav_host_fragment) */
-
-        // Alternative to get nav controller
         val navView : BottomNavigationView = binding.bottomNavView
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -98,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                     val activityRecognitionPermission = Manifest.permission.ACTIVITY_RECOGNITION
                     checkPermission(activityRecognitionPermission)
                 } else {
-                    true // No need to check activity recognition permission for older versions
+                    true
                 }
 
             if (locationPermissionGranted && activityPermissionGranted) {
@@ -118,52 +119,88 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupToolbarAndBottomBar() {
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            binding.bottomAppBar.visibility =
-                if (listFragmentBottomBar.contains(destination.id)) View.VISIBLE else View.GONE
-            binding.fabRecord.visibility =
-                if (listFragmentBottomBar.contains(destination.id)) View.VISIBLE else View.GONE
+            val isListFragmentBottomBar = listFragmentBottomBar.contains(destination.id)
+            binding.bottomAppBar.visibility = if (isListFragmentBottomBar) View.VISIBLE else View.GONE
+            binding.fabRecord.visibility = if (isListFragmentBottomBar) View.VISIBLE else View.GONE
 
             binding.materialToolbar.apply {
-                if(destination.id == R.id.profileFragment){
-                    menu.clear()
-                    inflateMenu(R.menu.menu_profile)
-                    setOnMenuItemClickListener { menuItem ->
-                        when (menuItem.itemId) {
-                            R.id.logout -> {
-                                viewModel.logout()
-                                navController.navigate(R.id.loginFragment)
-                                true
-                            }
-                            else -> false
-                        }
-                    }
-                } else{
+                if (destination.id == R.id.profileFragment) {
+                    setupProfileFragmentMenu()
+                } else {
                     menu.clear()
                 }
-
-                visibility =
-                    if (listFragmentTopBar.contains(destination.id)) View.VISIBLE
-                    else View.GONE
+                visibility = if (listFragmentTopBar.contains(destination.id)) View.VISIBLE else View.GONE
                 title = destination.label
                 isTitleCentered = true
 
-                if (listFragmentTopBarWithBackNavigation.contains(destination.id)) {
-                    navigationIcon = ContextCompat.getDrawable(context, R.drawable.ic_arrow_back_24)
-                    setNavigationOnClickListener {
-                        controller.navigateUp()
-                    }
-                } else {
-                    navigationIcon = null
-                    setNavigationOnClickListener(null)
-                }
+                setupToolbarNavigation(destination.id, controller)
             }
+            setupStatusBarColor(destination.id)
+        }
+    }
 
-            if(listFragmentNoSystemBar.contains(destination.id)){
-                window.statusBarColor = ContextCompat.getColor(this, R.color.white)
-            } else{
-                window.statusBarColor = ContextCompat.getColor(this, R.color.secondary_container)
+    private fun setupProfileFragmentMenu() {
+        binding.materialToolbar.menu.clear()
+        binding.materialToolbar.inflateMenu(R.menu.menu_profile)
+        binding.materialToolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.logout -> {
+                    handleLogoutMenuItemClick()
+                    true
+                }
+                else -> false
             }
         }
+    }
+
+    private fun handleLogoutMenuItemClick() {
+        if (viewModel.getNotifStatus()) {
+            cancelNotificationAlarms()
+            viewModel.setNotifStatus(false)
+        }
+
+        if (viewModel.getResetStatus()) {
+            cancelResetAlarm()
+            viewModel.setResetStatus(false)
+        }
+
+        viewModel.logout()
+        navController.navigate(R.id.loginFragment)
+    }
+
+    private fun cancelNotificationAlarms() {
+        val receiver = AlarmReceiver()
+        receiver.cancelAlarm(this@MainActivity, AlarmReceiver.REMINDER_ALARM_ID_1, AlarmReceiver.SHOW_NOTIF_ACTION)
+        receiver.cancelAlarm(this@MainActivity, AlarmReceiver.REMINDER_ALARM_ID_2, AlarmReceiver.SHOW_NOTIF_ACTION)
+    }
+
+    private fun cancelResetAlarm() {
+        val receiver = AlarmReceiver()
+        receiver.cancelAlarm(this, AlarmReceiver.RESET_ALARM_ID, AlarmReceiver.DAILY_RESET_ACTION)
+    }
+
+    private fun setupToolbarNavigation(destinationId: Int, controller: NavController) {
+        binding.materialToolbar.navigationIcon =
+            if (listFragmentTopBarWithBackNavigation.contains(destinationId)) {
+                ContextCompat.getDrawable(this@MainActivity, R.drawable.ic_arrow_back_24)
+            } else {
+                null
+            }
+
+        binding.materialToolbar.setNavigationOnClickListener {
+            if (listFragmentTopBarWithBackNavigation.contains(destinationId)) {
+                controller.navigateUp()
+            }
+        }
+    }
+
+    private fun setupStatusBarColor(destinationId: Int) {
+        window.statusBarColor =
+            if (listFragmentNoSystemBar.contains(destinationId)) {
+                ContextCompat.getColor(this, R.color.white)
+            } else {
+                ContextCompat.getColor(this, R.color.secondary_container)
+            }
     }
 
     companion object {
