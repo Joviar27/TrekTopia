@@ -6,6 +6,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.Locale
 
 object DateHelper{
@@ -61,9 +62,33 @@ object DateHelper{
         return formatter.format(localDateTime)
     }
 
-    fun isTimestampInCurrentDay(timestamp: Timestamp): Boolean {
-        val localDate = timeStampToLocalDate(timestamp)
-        val currentDate = LocalDate.now()
-        return localDate.isEqual(currentDate)
+    fun isTimestampInCurrentDay(timeStamp: Timestamp): Boolean {
+        val currentTimestamp = Timestamp.now()
+
+        val currentCalendar = Calendar.getInstance()
+        currentCalendar.time = currentTimestamp.toDate()
+
+        val yourTimestampCalendar = Calendar.getInstance()
+        yourTimestampCalendar.time = timeStamp.toDate()
+
+        return currentCalendar.get(Calendar.DAY_OF_YEAR) == yourTimestampCalendar.get(Calendar.DAY_OF_YEAR)
     }
+
+    fun isTimeStampPreviousDay(timeStamp: Timestamp): Boolean {
+        val currentTimestamp = Timestamp.now()
+
+        val currentCalendar = Calendar.getInstance()
+        currentCalendar.time = currentTimestamp.toDate()
+
+        val yourTimestampCalendar = Calendar.getInstance()
+        yourTimestampCalendar.time = timeStamp.toDate()
+
+        return currentCalendar.get(Calendar.DAY_OF_YEAR) - yourTimestampCalendar.get(Calendar.DAY_OF_YEAR) == 1
+    }
+
+    fun millisToMinutes(elapsedTimeMillis: Long): Double {
+        val millisecondsInMinute = 60000.0
+        return elapsedTimeMillis / millisecondsInMinute
+    }
+
 }
