@@ -14,7 +14,7 @@ class GameRepository (
     private val firestore: FirestoreDataSource
 ) {
 
-    fun resetDailyMission() = firestore.resetDailyMission()
+    fun resetDailyMission(userId: String) = firestore.resetDailyMission(userId)
 
     fun resetStreak(userId: String) = firestore.resetStreak(userId)
 
