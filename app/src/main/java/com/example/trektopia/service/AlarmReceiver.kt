@@ -85,7 +85,7 @@ class AlarmReceiver : BroadcastReceiver() {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val workRequest = OneTimeWorkRequest.Builder(FirestoreWorker::class.java)
+        val workRequest = OneTimeWorkRequest.Builder(ResetWorker::class.java)
             .setConstraints(constraints)
             .addTag("Reset worker")
             .build()
