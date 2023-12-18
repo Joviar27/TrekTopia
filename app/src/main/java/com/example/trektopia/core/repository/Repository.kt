@@ -7,17 +7,29 @@ import com.example.trektopia.core.data.FirestoreDataSource
 import com.example.trektopia.core.data.StorageDataSource
 import com.example.trektopia.core.model.Activity
 import com.example.trektopia.core.model.User
+import com.example.trektopia.core.preferences.NotificationPreference
+import com.example.trektopia.core.preferences.ResetPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class Repository(
     private val firestore: FirestoreDataSource,
-    private val storage: StorageDataSource
+    private val storage: StorageDataSource,
+    private val notificationPreference: NotificationPreference,
+    private val resetPreference: ResetPreference
 ) {
+
+    fun getNotificationStatus() = notificationPreference.getNotificationStatus()
+    fun setNotificationStatus(status: Boolean) = notificationPreference.setNotificationStatus(status)
+    fun getResetStatus() = resetPreference.getResetStatus()
+    fun setResetStatus(status: Boolean) = resetPreference.setResetStatus(status)
+
     fun getUserData(userId: String) = firestore.getUserData(userId)
 
     //To show notification if user haven't done any activity
-    fun checkLatestActiveDate(userId: String) = firestore.checkLatestActiveDate(userId)
+    fun checkLatestActiveDate(userId: String) = firestore.isLatestActiveCurrentDay(userId)
+
+    fun checkLatestActivePreviousDate(userId: String) = firestore.isLatestActivePreviousDay(userId)
 
     fun getUserActivities(userId: String) = firestore.getUserActivities(userId)
 
@@ -52,7 +64,10 @@ class Repository(
                     is ResultState.Error -> {
                         if(oldUri!=null) uploadProfile(userId, oldUri)
                     }
-                    else -> emit(result)
+                    is ResultState.Success ->{
+                        emit(ResultState.Success(Unit))
+                    }
+                    else -> Unit
                 }
             }
         } catch (e: Exception){
