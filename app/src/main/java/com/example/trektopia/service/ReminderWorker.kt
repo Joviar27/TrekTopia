@@ -14,15 +14,16 @@ import com.example.trektopia.core.di.Injection
 import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import java.time.LocalDate
 
 class ReminderWorker(
     context: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams) {
 
-    private var repository= Injection.provideRepository()
+    private var repository= Injection.provideRepository(context)
     private var authRepository= Injection.provideAuthRepository()
+
+    private lateinit var notificationManager: NotificationManager
 
     override suspend fun doWork(): Result = coroutineScope {
         try {
@@ -43,16 +44,14 @@ class ReminderWorker(
         }
     }
 
-    private fun showNotification(latestActive: LocalDate){
-        if (latestActive == LocalDate.now()) {
-            val notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private fun showNotification(isActiveToday: Boolean){
+        if (!isActiveToday) {
+            notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                createNotificationChannel(notificationManager)
-            }
+            createNotificationChannel()
 
             val notification = NotificationCompat.Builder(applicationContext, "reminder_channel_id")
-                .setSmallIcon(R.drawable.ic_walk)
+                .setSmallIcon(R.drawable.ic_walk_small)
                 .setContentTitle("Reminder")
                 .setContentText("Don't forget to exercise today!")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -62,12 +61,14 @@ class ReminderWorker(
         }
     }
 
-    private fun createNotificationChannel(manager: NotificationManager){
-        val channel = NotificationChannel(
-            "reminder_channel_id",
-            "Reminder Channel",
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        manager.createNotificationChannel(channel)
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "reminder_channel_id",
+                "Reminder Channel",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 }
