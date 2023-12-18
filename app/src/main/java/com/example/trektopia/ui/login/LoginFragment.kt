@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.navigation.findNavController
 import com.example.trektopia.R
 import com.example.trektopia.core.ResultState
@@ -28,7 +27,7 @@ class LoginFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        _viewModel = this.obtainViewModel()
+        _viewModel = this.obtainViewModel(requireContext())
     }
 
     override fun onCreateView(

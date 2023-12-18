@@ -29,11 +29,13 @@ class RecapFragment : Fragment() {
     private val binding get() = _binding
 
     private lateinit var viewModel: RecordViewModel
-    private lateinit var statusDialog: StatusDialog
+
+    private lateinit var loadingStatusDialog: StatusDialog
+    private lateinit var failedStatusDialog: StatusDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = this.obtainViewModel()
+        viewModel = this.obtainViewModel(requireContext())
     }
 
     override fun onCreateView(
@@ -105,11 +107,14 @@ class RecapFragment : Fragment() {
                     when(result){
                         is ResultState.Loading -> showLoading()
                         is ResultState.Success ->{
-                            statusDialog.dismiss()
+                            dismissLoading()
                             val toHistory = RecapFragmentDirections.actionRecapFragmentToHistoryFragment()
                             view?.findNavController()?.safeNavigate(toHistory)
                         }
-                        is ResultState.Error -> showFailed()
+                        is ResultState.Error -> {
+                            showFailed()
+                            dismissLoading()
+                        }
                     }
                 }
             }
@@ -122,22 +127,26 @@ class RecapFragment : Fragment() {
     }
 
     private fun showLoading(){
-        statusDialog = StatusDialog.newInstance(
+        loadingStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_loading,
             resources.getString(R.string.dialog_loading_activity),
         )
-        statusDialog.show(childFragmentManager, "LoadingStatusDialog")
+        loadingStatusDialog.show(childFragmentManager, "LoadingStatusDialog")
+    }
+
+    private fun dismissLoading(){
+        loadingStatusDialog.dismiss()
     }
 
     private fun showFailed(){
-        statusDialog = StatusDialog.newInstance(
+        failedStatusDialog = StatusDialog.newInstance(
             R.drawable.ic_error,
             resources.getString(R.string.dialog_fail_activity),
         )
-        statusDialog.show(childFragmentManager, "SuccessStatusDialog")
+        failedStatusDialog.show(childFragmentManager, "SuccessStatusDialog")
 
         Handler(Looper.getMainLooper()).postDelayed({
-            statusDialog.dismiss()
+            failedStatusDialog.dismiss()
         }, 1000L)
     }
 }
