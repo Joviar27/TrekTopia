@@ -130,22 +130,4 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-<!--    <TextView-->
-<!--        android:id="@+id/tv_activity_step"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="5000 langkah"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tv_activity_distance"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="10.6 KM"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tv_activity_speed"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="11 KM/H"/>-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>
