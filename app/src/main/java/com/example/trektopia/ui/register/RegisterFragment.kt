@@ -62,7 +62,7 @@ class RegisterFragment : Fragment() {
 
         _statusDialog = StatusDialog.newInstance(
             R.drawable.ic_loading,
-            resources.getString(R.string.dialog_loading_login),
+            resources.getString(R.string.dialog_loading_register),
         )
     }
 

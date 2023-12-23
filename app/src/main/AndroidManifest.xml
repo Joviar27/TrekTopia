@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.trektopia">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -15,6 +16,13 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
+    <!-- Alarn   -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <!-- Foreground Service   -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -28,13 +36,15 @@
         <service
             android:name=".service.RecordService"
             android:enabled="true"
-            android:exported="true" />
+            android:foregroundServiceType="location"
+            android:exported="false" />
         <receiver
-            android:name=".service.DateChangeReceiver"
+            android:name=".service.AlarmReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="com.example.trektopia.DAILY_RESET_ACTION"/>
+                <action android:name="com.example.trektopia.SHOW_NOTIF_ACTION"/>
             </intent-filter>
         </receiver>
         <!--
@@ -50,8 +60,7 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY" />
-
+            android:value="${MAPS_API_KEY}"/>
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="true">

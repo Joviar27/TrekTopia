@@ -26,10 +26,8 @@ class Repository(
 
     fun getUserData(userId: String) = firestore.getUserData(userId)
 
-    //To show notification if user haven't done any activity
-    fun checkLatestActiveDate(userId: String) = firestore.isLatestActiveCurrentDay(userId)
-
-    fun checkLatestActivePreviousDate(userId: String) = firestore.isLatestActivePreviousDay(userId)
+    fun checkLatestActiveDate(userId: String, currentDay: Boolean) =
+        firestore.isLatestActiveOnDay(userId,currentDay)
 
     fun getUserActivities(userId: String) = firestore.getUserActivities(userId)
 

@@ -2,6 +2,7 @@ package com.example.trektopia.ui.dialog
 
 import android.app.Dialog
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.example.trektopia.databinding.DialogStatusBinding

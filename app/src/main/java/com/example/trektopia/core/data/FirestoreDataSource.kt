@@ -6,8 +6,8 @@ import com.example.trektopia.core.ResultState
 import com.example.trektopia.core.model.Activity
 import com.example.trektopia.core.model.DailyStreak
 import com.example.trektopia.core.model.Progress
-import com.example.trektopia.core.model.abstraction.Relation
-import com.example.trektopia.core.model.abstraction.Task
+import com.example.trektopia.core.model.Relation
+import com.example.trektopia.core.model.Task
 import com.example.trektopia.core.model.operation.UpdateProgress
 import com.example.trektopia.core.model.enum.TaskType
 import com.example.trektopia.core.model.User
@@ -149,43 +149,22 @@ class FirestoreDataSource(
         transaction.update(relationRef,"activeDate", Timestamp.now())
     }
 
-    fun isLatestActiveCurrentDay(
-        userId: String
+    fun isLatestActiveOnDay(
+        userId: String,
+        checkCurrentDay: Boolean
     ): Flow<ResultState<Boolean>> = callbackFlow {
         trySend(ResultState.Loading)
         USERS_REF.document(userId).get()
             .addOnSuccessListener { snapshot ->
                 val latestActive = snapshot.getTimestamp("dailyStreak.latestActive")
 
-                if(latestActive!=null){
-                    trySend(ResultState.Success(
+                if (latestActive != null) {
+                    val result = if (checkCurrentDay) {
                         DateHelper.isTimestampInCurrentDay(latestActive)
-                    ))
-                } else {
-                    trySend(ResultState.Error("latest date is null"))
-                    Log.e("FirestoreDataSource", "getLatestActive: latest date is null")
-                }
-            }.addOnFailureListener { e ->
-                trySend(ResultState.Error(e.message.toString()))
-                Log.e("FirestoreDataSource", "getLatestActive: $e")
-            }.addOnCompleteListener {
-                close()
-            }
-        awaitClose()
-    }
-
-    fun isLatestActivePreviousDay(
-        userId: String
-    ): Flow<ResultState<Boolean>> = callbackFlow {
-        trySend(ResultState.Loading)
-        USERS_REF.document(userId).get()
-            .addOnSuccessListener { snapshot ->
-                val latestActive = snapshot.getTimestamp("dailyStreak.latestActive")
-
-                if(latestActive!=null){
-                    trySend(ResultState.Success(
+                    } else {
                         DateHelper.isTimeStampPreviousDay(latestActive)
-                    ))
+                    }
+                    trySend(ResultState.Success(result))
                 } else {
                     trySend(ResultState.Error("latest date is null"))
                     Log.e("FirestoreDataSource", "getLatestActive: latest date is null")
@@ -200,7 +179,7 @@ class FirestoreDataSource(
     }
 
     fun getLeaderboard(): Flow<ResultState<List<Pair<Int,User>>>> = callbackFlow {
-        val listener = USERS_REF.orderBy("point", Query.Direction.DESCENDING).limit(20)
+        val listener = USERS_REF.orderBy("point", Query.Direction.DESCENDING).limit(30)
             .addSnapshotListener{ snapshot, error ->
                 if (error != null) {
                     Log.e("FirestoreDataSource", "getLeaderboard : $error")
@@ -208,14 +187,18 @@ class FirestoreDataSource(
                     return@addSnapshotListener
                 }
                 try{
-                    val usersList = snapshot?.toObjects<User>()
+                    val groupedByPoint = snapshot?.toObjects<User>()
                         ?.groupBy { it.point }
-                        ?.flatMap { (_, usersWithSamePoint) ->
-                            usersWithSamePoint.mapIndexed { index, user ->
-                                index + 1 to user
-                            }
-                        } ?: throw IllegalArgumentException("Users are null")
+                        ?:throw IllegalArgumentException("Users are null")
 
+                    var rank = 1
+                    val usersList = mutableListOf<Pair<Int,User>>()
+                    groupedByPoint.values.forEach { group ->
+                        group.forEach { user ->
+                            usersList.add(rank to user)
+                        }
+                        rank += group.size
+                    }
                     trySend(ResultState.Success(usersList))
                 }catch (e: Exception){
                     trySend(ResultState.Error(e.message.toString()))
@@ -355,30 +338,6 @@ class FirestoreDataSource(
         transaction.update(relationRef, "progress.enabled", false)
     }
 
-    fun addActivityAndUpdateProgressOri(
-        activity: Activity,
-        userId: String
-    ):Flow<ResultState<Unit>> = flow{
-        emit(ResultState.Loading)
-        try{
-            val taskRelationRefs = getUpdateProgress(activity, userId)
-            db.runTransaction { transaction ->
-                taskRelationRefs.forEach { updateProgress ->
-                    updateProgress.taskAndRelationRef.forEach { (taskRef, relationRef) ->
-                        updateTaskProgress(transaction, taskRef, relationRef, updateProgress.addedProgress)
-                    }
-                }
-                insertActivity(transaction, activity, userId)
-                updateStreak(transaction, activity, userId)
-            }.await()
-            emit(ResultState.Success(Unit))
-        }
-        catch (e: Exception){
-            emit(ResultState.Error(e.message.toString()))
-            Log.e("FirestoreDataSource", e.message.toString())
-        }
-    }
-
     fun addActivityAndUpdateProgress(
         activity: Activity,
         userId: String
@@ -421,8 +380,8 @@ class FirestoreDataSource(
 
             emit(ResultState.Success(Unit))
         } catch (e: Exception) {
-            emit(ResultState.Error(e.message.toString()))
-            Log.e("FirestoreDataSource", e.message.toString())
+            emit(ResultState.Error(e.toString()))
+            Log.e("FirestoreDataSource", e.toString())
         }
     }
 
@@ -432,7 +391,6 @@ class FirestoreDataSource(
         userId: String
     ){
         val activityRef = USERS_REF.document(userId).collection("activities").document(activity.id)
-
         transaction.set(activityRef,activity)
     }
 
@@ -474,43 +432,6 @@ class FirestoreDataSource(
                     current = if (newPercentage == 1.0) requirement else current,
                     percentage = newPercentage,
                     enabled = newPercentage == 1.0
-                )
-                transaction.update(relationRef, "progress", newProgress)
-            }
-        }
-    }
-
-
-    //Not used
-    private fun updateTaskProgress(
-        transaction: Transaction,
-        taskRef: DocumentReference,
-        relationRef: DocumentReference,
-        addedProgress: Double
-    ) {
-        val taskSnapshot = transaction.get(taskRef)
-        val relationSnapshot = transaction.get(relationRef)
-
-        if (!taskSnapshot.exists() || !relationSnapshot.exists()) {
-            throw FirebaseFirestoreException("updateTaskProgress: One or more documents do not exist",
-                FirebaseFirestoreException.Code.NOT_FOUND)
-        }
-
-        val requirement = taskSnapshot.getDouble("requirement")
-            ?: throw NullPointerException("updateTaskProgress: Requirement is null")
-        val progress = relationSnapshot.getField<Progress>("progress")
-            ?: throw NullPointerException("updateTaskProgress: Progress is null")
-
-        if(!progress.enabled){
-            val current = progress.current + addedProgress
-            val oldPercentage = progress.percentage
-            val newPercentage = if(current/requirement<1.0) current/requirement else 1.0
-
-            if(oldPercentage<1.0){
-                val newProgress = Progress(
-                    current = if(newPercentage==1.0)requirement else current,
-                    percentage = newPercentage,
-                    enabled = newPercentage==1.0
                 )
                 transaction.update(relationRef, "progress", newProgress)
             }
@@ -565,42 +486,6 @@ class FirestoreDataSource(
         }
     }
 
-    private fun updateStreak(
-        transaction: Transaction,
-        activity: Activity,
-        userId: String
-    ){
-        val userRef = USERS_REF.document(userId)
-        val userSnapshot = transaction.get(userRef)
-
-        if (!userSnapshot.exists()) {
-            throw FirebaseFirestoreException("updateStreak: documents do not exist",
-                FirebaseFirestoreException.Code.NOT_FOUND)
-        }
-
-        val user = userSnapshot.toObject<User>()
-            ?: throw NullPointerException("updateStreak : User is null")
-        val weeklyHistory = user.dailyStreak.history
-
-        transaction.update(userRef, "dailyStreak.count",1)
-        transaction.update(userRef, "dailyStreak.latestActive", activity.timeStamp)
-
-        if(user.dailyStreak.count > user.dailyStreak.longest){
-            transaction.update(userRef, "dailyStreak.longest", user.dailyStreak.count)
-        }
-
-        if(weeklyHistory!=null){
-            val updatedWeekly = weeklyHistory.toMutableList().add(StreakHistory(
-                activity.timeStamp,
-                true
-            ))
-            transaction.update(userRef,"dailyStreak.history", updatedWeekly)
-        } else {
-            val newWeekly = mutableListOf<Pair<Boolean,Timestamp>>().add(Pair(true,activity.timeStamp))
-            transaction.update(userRef,"dailyStreak.history", newWeekly)
-        }
-    }
-
     private suspend fun getUpdateProgress(
         activity: Activity,
         userId: String
@@ -646,7 +531,7 @@ class FirestoreDataSource(
     fun getRelationData(
         userId: String,
         relationRefCollection: CollectionReference
-    ): Flow<ResultState<List<Pair<String,Relation>>>> = callbackFlow {
+    ): Flow<ResultState<List<Pair<String, Relation>>>> = callbackFlow {
         trySend(ResultState.Loading)
         val listener = relationRefCollection.whereEqualTo("userRef", userId)
             .addSnapshotListener { snapshot, error ->
@@ -813,5 +698,4 @@ class FirestoreDataSource(
         val randomRef = MISSION_RELATIONS_REF.document().id
         batch.set(MISSION_RELATIONS_REF.document(randomRef), relation)
     }
-
 }

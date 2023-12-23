@@ -241,7 +241,8 @@ class HomeFragment : Fragment() {
                 is ResultState.Success -> {
                     taskAdapter.submitList(missionsResult.data)
                     if(missionsResult.data.isNotEmpty()){
-                        setupCountdown(missionsResult.data[0].activeDate
+                        setupCountdown(
+                            missionsResult.data[0].activeDate
                             ?: missionsResult.data[1].activeDate!!
                         )
                     }

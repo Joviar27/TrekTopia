@@ -31,7 +31,7 @@ class ReminderWorker(
         try {
             val uid = authRepository.getUid().first()
 
-            repository.checkLatestActiveDate(uid).collect{result ->
+            repository.checkLatestActiveDate(uid,true).collect{result ->
                 if(result is ResultState.Success){
                     showNotification(result.data)
                 }else if(result is ResultState.Error){

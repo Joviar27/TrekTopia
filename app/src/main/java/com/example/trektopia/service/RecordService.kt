@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -16,6 +17,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import androidx.core.app.BundleCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
@@ -33,6 +35,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.firebase.Timestamp
+import java.lang.NullPointerException
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -140,7 +143,9 @@ class RecordService : Service(), SensorEventListener {
                     stopForegroundService()
                 }
                 ACTION_SETUP_LOCATION_CALLBACK ->{
-                    locationRequest = getParcelableExtra(intent, EXTRA_LOCATION_REQUEST)
+                    @Suppress ("Deprecation")
+                    locationRequest = intent.getParcelableExtra(EXTRA_LOCATION_REQUEST)
+                        ?:throw NullPointerException("$EXTRA_LOCATION_REQUEST parcelable is null")
                     createLocationCallback()
                 }
             }
@@ -157,7 +162,12 @@ class RecordService : Service(), SensorEventListener {
             .setLargeIcon(ContextCompat.getDrawable(this@RecordService,R.mipmap.ic_launcher)?.toBitmap())
             .build()
 
-        startForeground(NOTIFICATION_ID, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(NOTIFICATION_ID, notification, FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else{
+            startForeground(NOTIFICATION_ID, notification)
+
+        }
     }
 
     private fun createNotificationChannel() {
@@ -174,8 +184,8 @@ class RecordService : Service(), SensorEventListener {
 
     private fun stopForegroundService() {
         stopForeground(STOP_FOREGROUND_DETACH)
-        stopSelf()
         notifManager.cancel(NOTIFICATION_ID)
+        stopSelf()
     }
 
 

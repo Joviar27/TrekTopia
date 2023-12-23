@@ -13,3 +13,4 @@ inline fun <reified T : Parcelable> getParcelableExtra(intent: Intent, extraKey:
         intent.getParcelableExtra(extraKey)
     } ?: throw NullPointerException("$extraKey parcelable is null")
 }
+

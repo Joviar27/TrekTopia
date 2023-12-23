@@ -105,13 +105,18 @@ class RecapFragment : Fragment() {
             btnSaveRecord.setOnClickListener {
                 viewModel.saveRecord(activity).observe(requireActivity()){result ->
                     when(result){
-                        is ResultState.Loading -> showLoading()
+                        is ResultState.Loading -> {
+                            view?.isClickable = false
+                            showLoading()
+                        }
                         is ResultState.Success ->{
+                            view?.isClickable = true
                             dismissLoading()
                             val toHistory = RecapFragmentDirections.actionRecapFragmentToHistoryFragment()
                             view?.findNavController()?.safeNavigate(toHistory)
                         }
                         is ResultState.Error -> {
+                            view?.isClickable = true
                             showFailed()
                             dismissLoading()
                         }
@@ -132,10 +137,17 @@ class RecapFragment : Fragment() {
             resources.getString(R.string.dialog_loading_activity),
         )
         loadingStatusDialog.show(childFragmentManager, "LoadingStatusDialog")
+        loadingStatusDialog.isCancelable = false
+
+        binding?.btnDeleteRecord?.isEnabled = false
+        binding?.btnSaveRecord?.isEnabled = false
     }
 
     private fun dismissLoading(){
         loadingStatusDialog.dismiss()
+
+        binding?.btnDeleteRecord?.isEnabled = true
+        binding?.btnSaveRecord?.isEnabled = true
     }
 
     private fun showFailed(){
@@ -147,6 +159,6 @@ class RecapFragment : Fragment() {
 
         Handler(Looper.getMainLooper()).postDelayed({
             failedStatusDialog.dismiss()
-        }, 1000L)
+        }, 1500L)
     }
 }
