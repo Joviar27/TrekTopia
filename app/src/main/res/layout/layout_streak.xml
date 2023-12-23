@@ -11,7 +11,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingVertical="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp"
         android:background="@color/primary">
 
         <TextView
@@ -72,19 +73,5 @@
             tools:orientation="horizontal" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-<!--    <de.hdodenhof.circleimageview.CircleImageView-->
-<!--        android:id="@+id/btn_previous_history"-->
-<!--        android:layout_width="25dp"-->
-<!--        android:layout_height="25dp"-->
-<!--        android:layout_marginStart="16dp"-->
-<!--        android:layout_marginBottom="8dp"-->
-<!--        android:background="@drawable/bg_tertiarycon_circle"-->
-<!--        android:paddingStart="8dp"-->
-<!--        android:paddingEnd="2dp"-->
-<!--        android:src="@drawable/ic_chevron_left_24"-->
-<!--        app:layout_constraintBottom_toBottomOf="@+id/rv_user_streak_history"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="@+id/rv_user_streak_history" />-->
 
 </com.google.android.material.card.MaterialCardView>

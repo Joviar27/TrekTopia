@@ -63,16 +63,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-<!--    <TextView-->
-<!--        android:id="@+id/tv_task_progress"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="30/50 selesai"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tv_task_percentage"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="70 persen progres"/>-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>

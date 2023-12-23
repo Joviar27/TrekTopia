@@ -174,48 +174,4 @@
             android:backgroundTint="?attr/colorTertiary"
             android:layout_gravity="center"/>
     </com.google.android.material.card.MaterialCardView>
-
-
-<!--    <TextView-->
-<!--        android:id="@+id/tv_step_count"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="200 Langkah"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tv_speed"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="11Km/Jam"/>-->
-
-<!--    <TextView-->
-<!--        android:id="@+id/tv_distance"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="1,3 KM"/>-->
-
-<!--    <Button-->
-<!--        android:id="@+id/btn_start_record"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="Start Record"/>-->
-
-<!--    <Button-->
-<!--        android:id="@+id/btn_resume_record"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="Resume Record"/>-->
-
-<!--    <Button-->
-<!--        android:id="@+id/btn_pause_record"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="Pause Record"/>-->
-
-<!--    <Button-->
-<!--        android:id="@+id/btn_stop_record"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        tools:text="Stop Record"/>-->
-
 </androidx.constraintlayout.widget.ConstraintLayout>
