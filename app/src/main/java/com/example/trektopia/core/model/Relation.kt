@@ -1,4 +1,4 @@
-package com.example.trektopia.core.model.abstraction
+package com.example.trektopia.core.model
 
 import com.example.trektopia.core.model.Progress
 import com.google.firebase.Timestamp

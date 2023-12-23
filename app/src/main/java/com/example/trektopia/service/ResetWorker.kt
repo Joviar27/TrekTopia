@@ -23,7 +23,7 @@ class ResetWorker(
         try {
             val uid = authRepository.getUid().first()
 
-            repository.checkLatestActivePreviousDate(uid).collect{result ->
+            repository.checkLatestActiveDate(uid,false).collect{result ->
                 if(result is ResultState.Success){
                     updateData(uid, result.data)
                 } else if(result is ResultState.Error){

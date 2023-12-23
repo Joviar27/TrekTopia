@@ -1,4 +1,4 @@
-package com.example.trektopia.core.model.abstraction
+package com.example.trektopia.core.model
 
 import android.net.Uri
 import com.example.trektopia.core.model.enum.ProgressType

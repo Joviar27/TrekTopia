@@ -79,7 +79,7 @@ class ProfileFragment : Fragment() {
 
         setupAchievementsRV()
         observeUserData()
-        observeMissionsData()
+        observeAchievementsData()
     }
 
     private fun setupUserView(user: User) {
@@ -181,7 +181,6 @@ class ProfileFragment : Fragment() {
                     handleUpdateResult(updateResult)
                 }
             }
-            showOriginalButtonViews()
         }
     }
 
@@ -194,6 +193,7 @@ class ProfileFragment : Fragment() {
                 showSuccess(
                     resources.getString(R.string.dialog_success_update)
                 )
+                showOriginalButtonViews()
                 dismissLoading()
             }
             is ResultState.Error -> {
@@ -274,7 +274,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun observeMissionsData(){
+    private fun observeAchievementsData(){
         viewModel.achievements.observe(requireActivity()){ missionsResult ->
             when(missionsResult){
                 is ResultState.Loading -> Unit
@@ -282,7 +282,6 @@ class ProfileFragment : Fragment() {
                     taskAdapter.submitList(missionsResult.data)
                 }
                 is ResultState.Error -> {
-                    //showLoadingBar(false)
                     resources.getString(R.string.page_failed_load).showToast(requireContext())
                 }
             }

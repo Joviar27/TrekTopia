@@ -2,8 +2,8 @@ package com.example.trektopia.core.repository
 
 import com.example.trektopia.core.ResultState
 import com.example.trektopia.core.data.FirestoreDataSource
-import com.example.trektopia.core.model.abstraction.Relation
-import com.example.trektopia.core.model.abstraction.Task
+import com.example.trektopia.core.model.Relation
+import com.example.trektopia.core.model.Task
 import com.example.trektopia.core.model.operation.TaskWithProgress
 import com.example.trektopia.core.model.enum.TaskType
 import com.google.firebase.firestore.CollectionReference
@@ -69,7 +69,7 @@ class GameRepository (
     }
 
     private fun mapToTaskWithProgress(
-        userMissions: ResultState<List<Pair<String,Relation>>>,
+        userMissions: ResultState<List<Pair<String, Relation>>>,
         allMissions: ResultState<List<Task>>
     ): ResultState<List<TaskWithProgress>> {
         val relations = (userMissions as ResultState.Success).data
