@@ -31,4 +31,12 @@ Some of the gamification element implemented in the application.
 * Point Systems
 
 ## Project Screenshot
-![Trektopia UI](https://github.com/Joviar27/TrekTopia/assets/95416905/19cadd4a-7dc8-4b81-a6d5-535949d63454)
+![Masuk](https://github.com/Joviar27/TrekTopia/assets/95416905/bc0f4765-5a76-43a5-a72a-16fe9b5e4b6d)
+![Daftar](https://github.com/Joviar27/TrekTopia/assets/95416905/9fb63931-fd49-4104-88b6-70ad2a658fc8)
+![Beranda](https://github.com/Joviar27/TrekTopia/assets/95416905/4f133f93-d687-4393-91ae-852b36b39249)
+![Riwayat](https://github.com/Joviar27/TrekTopia/assets/95416905/56377cb7-fb55-4413-81a1-f387724ac780)
+![Detail Aktivitas](https://github.com/Joviar27/TrekTopia/assets/95416905/2e20f114-6936-42e1-b57a-92202d133de8)
+![Aktivitas](https://github.com/Joviar27/TrekTopia/assets/95416905/bef87c49-b67d-428a-81cf-40ec5230d3d7)
+![Rekap Aktivitas](https://github.com/Joviar27/TrekTopia/assets/95416905/20345e10-4286-47e1-963f-1a82bed9d5a2)
+![Peringkat](https://github.com/Joviar27/TrekTopia/assets/95416905/120b3d0f-cee0-4304-a40c-ced57acaa2fb)
+![Profil](https://github.com/Joviar27/TrekTopia/assets/95416905/52f22047-6c5d-4698-918c-15fe48d64c8b)
