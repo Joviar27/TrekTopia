@@ -31,4 +31,4 @@ Some of the gamification element implemented in the application.
 * Point Systems
 
 ## Project Screenshot
-![Trektopia UI](https://github.com/Joviar27/TrekTopia/assets/95416905/19cadd4a-7dc8-4b81-a6d5-535949d63454)
+![TrekTopia Screenshoots](https://github.com/user-attachments/assets/1370ff76-2bb0-4781-acfe-6009785fb289)
