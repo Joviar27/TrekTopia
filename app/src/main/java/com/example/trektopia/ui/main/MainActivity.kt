@@ -9,6 +9,7 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -17,7 +18,9 @@ import com.example.trektopia.R
 import com.example.trektopia.utils.obtainViewModel
 import com.example.trektopia.databinding.ActivityMainBinding
 import com.example.trektopia.service.AlarmReceiver
+import com.example.trektopia.ui.profile.ProfileFragmentDirections
 import com.example.trektopia.ui.record.RecordFragment
+import com.example.trektopia.utils.safeNavigate
 import com.example.trektopia.utils.showToast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -165,7 +168,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.logout()
-        navController.navigate(R.id.loginFragment)
+        val toLogin = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
+        navController.safeNavigate(toLogin)
     }
 
     private fun cancelNotificationAlarms() {
